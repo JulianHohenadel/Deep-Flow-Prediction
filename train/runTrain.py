@@ -16,6 +16,7 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 
 from DfpNet import TurbNetG, weights_init
+from loadSave import save_ckp, load_ckp
 import dataset
 import utils
 
@@ -35,7 +36,7 @@ expo = 5
 prop=None # by default, use all from "../data/train"
 #prop=[1000,0.75,0,0.25] # mix data from multiple directories
 # save txt files with per epoch loss?
-saveL1 = False
+saveL1 = True
 
 ##########################
 
@@ -47,6 +48,8 @@ if len(sys.argv)>1:
 autoIter   = False
 dropout    = 0.
 doLoad     = ""
+
+resumeTraining = False
 
 print("LR: {}".format(lrG))
 print("LR decay: {}".format(decayLr))
@@ -73,6 +76,7 @@ print("Validation batches: {}".format(len(valiLoader)))
 
 # setup training
 epochs = int(iterations/len(trainLoader) + 0.5)
+start_epoch = 0
 netG = TurbNetG(channelExponent=expo, dropout=dropout)
 print(netG) # print full net
 model_parameters = filter(lambda p: p.requires_grad, netG.parameters())
@@ -95,9 +99,13 @@ inputs  = Variable(torch.FloatTensor(batch_size, 3, 128, 128))
 targets = targets.cuda()
 inputs  = inputs.cuda()
 
+if resumeTraining:
+    ckp_path = "path/to/checkpoint/checkpoint.pt"
+    netG, optimizerG, start_epoch = load_ckp(ckp_path, model, optimizer)
+
 ##########################
 
-for epoch in range(epochs):
+for epoch in range(start_epoch, epochs):
     print("Starting epoch {} / {}".format((epoch+1),epochs))
 
     netG.train()
@@ -170,6 +178,14 @@ for epoch in range(epochs):
             utils.resetLog(prefix + "L1val.txt")
         utils.log(prefix + "L1.txt"   , "{} ".format(L1_accum), False)
         utils.log(prefix + "L1val.txt", "{} ".format(L1val_accum), False)
+    
+    if checkpoints and ((epoch + 1) % 10 == 0):
+        checkpoint = {
+            'epoch': epoch + 1,
+            'state_dict': netG.state_dict(),
+            'optimizer': optimizerG.state_dict()
+        }
+        save_ckp(checkpoint, checkpoint_dir, model_dir)
 
 torch.save(netG.state_dict(), prefix + "modelG" )
 
