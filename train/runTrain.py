@@ -23,7 +23,7 @@ import utils
 ######## Settings ########
 
 # number of training iterations
-iterations = 10000
+iterations = 80000
 # batch size
 batch_size = 10
 # learning rate, generator
@@ -46,10 +46,8 @@ if len(sys.argv)>1:
     print("Output prefix: {}".format(prefix))
 
 autoIter   = False
-dropout    = 0.
+dropout    = 0.01
 doLoad     = ""
-
-resumeTraining = False
 
 print("LR: {}".format(lrG))
 print("LR decay: {}".format(decayLr))
@@ -58,13 +56,14 @@ print("Dropout: {}".format(dropout))
 
 ##########################
 
-seed = random.randint(0, 2**32 - 1)
+# seed = random.randint(0, 2**32 - 1)
+seed = 2454674177
 print("Random seed: {}".format(seed))
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
-#torch.backends.cudnn.deterministic=True # warning, slower
+torch.backends.cudnn.deterministic=True # warning, slower
 
 # create pytorch data object with dfp dataset
 data = dataset.TurbDataset(prop, shuffle=1)
@@ -78,7 +77,7 @@ print("Validation batches: {}".format(len(valiLoader)))
 epochs = int(iterations/len(trainLoader) + 0.5)
 start_epoch = 0
 netG = TurbNetG(channelExponent=expo, dropout=dropout)
-print(netG) # print full net
+# print(netG) # print full net
 model_parameters = filter(lambda p: p.requires_grad, netG.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
 print("Initialized TurbNet with {} trainable params ".format(params))
@@ -99,14 +98,18 @@ inputs  = Variable(torch.FloatTensor(batch_size, 3, 128, 128))
 targets = targets.cuda()
 inputs  = inputs.cuda()
 
+checkpoints = True
+resumeTraining = False
+
 if resumeTraining:
-    ckp_path = "path/to/checkpoint/checkpoint.pt"
-    netG, optimizerG, start_epoch = load_ckp(ckp_path, model, optimizer)
+    ckp_path = "/content/checkpoints/ckp_epoch" + "NUMBER" + ".pt"
+    netG, optimizerG, start_epoch = load_ckp(ckp_path, netG, optimizerG)
 
 ##########################
+print("Training for {} epochs".format(epochs - 1))
 
 for epoch in range(start_epoch, epochs):
-    print("Starting epoch {} / {}".format((epoch+1),epochs))
+    # print("Starting epoch {} / {}".format((epoch+1),epochs))
 
     netG.train()
     L1_accum = 0.0
@@ -179,13 +182,14 @@ for epoch in range(start_epoch, epochs):
         utils.log(prefix + "L1.txt"   , "{} ".format(L1_accum), False)
         utils.log(prefix + "L1val.txt", "{} ".format(L1val_accum), False)
     
-    if checkpoints and ((epoch + 1) % 10 == 0):
+    if (checkpoints and ((epoch + 1) % 10 == 0)) or (epoch == epochs - 1):
         checkpoint = {
+            # epoch + 1 to resume at the next epoch for training
             'epoch': epoch + 1,
             'state_dict': netG.state_dict(),
             'optimizer': optimizerG.state_dict()
         }
-        save_ckp(checkpoint, checkpoint_dir, model_dir)
+        save_ckp(checkpoint)
 
 torch.save(netG.state_dict(), prefix + "modelG" )
 

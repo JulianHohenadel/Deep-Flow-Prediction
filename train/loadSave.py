@@ -1,9 +1,10 @@
 import torch
 import shutil
 
-def save_ckp(state, is_best, checkpoint_dir, best_model_dir):
-    f_path = checkpoint_dir / 'checkpoint.pt'
+def save_ckp(state):
+    f_path = "/content/checkpoints/ckp_epoch" + str(state['epoch']) + ".pt"
     torch.save(state, f_path)
+    print("Checkpoint created\n")
 
 def load_ckp(checkpoint_fpath, model, optimizer):
     checkpoint = torch.load(checkpoint_fpath)
