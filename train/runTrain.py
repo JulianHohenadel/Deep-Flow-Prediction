@@ -57,7 +57,7 @@ print("Dropout: {}".format(dropout))
 ##########################
 
 # seed = random.randint(0, 2**32 - 1)
-seed = 2454674177
+seed = 0
 print("Random seed: {}".format(seed))
 random.seed(seed)
 np.random.seed(seed)
@@ -108,7 +108,7 @@ if resumeTraining:
 ##########################
 print("Training for {} epochs".format(epochs - 1))
 
-for epoch in range(start_epoch, epochs):
+for epoch in range(start_epoch, start_epoch + epochs):
     # print("Starting epoch {} / {}".format((epoch+1),epochs))
 
     netG.train()
@@ -182,7 +182,7 @@ for epoch in range(start_epoch, epochs):
         utils.log(prefix + "L1.txt"   , "{} ".format(L1_accum), False)
         utils.log(prefix + "L1val.txt", "{} ".format(L1val_accum), False)
     
-    if (checkpoints and ((epoch + 1) % 10 == 0)) or (epoch == epochs - 1):
+    if (checkpoints and ((epoch + 1) % 20 == 0)) or (epoch == start_epoch + epochs - 1):
         checkpoint = {
             # epoch + 1 to resume at the next epoch for training
             'epoch': epoch + 1,

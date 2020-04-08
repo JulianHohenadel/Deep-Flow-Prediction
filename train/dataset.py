@@ -18,6 +18,9 @@ makeDimLess = True
 # global switch, remove constant offsets from pressure channel?
 removePOffset = True
 
+verbose = False
+L1L2switch = False
+
 ## helper - compute absolute of inputs or targets
 def find_absmax(data, use_targets, x):
     maxval = 0
@@ -60,6 +63,38 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
         for i, file in enumerate(files):
             npfile = np.load(data.dataDir + file)
             d = npfile['a']
+            if i == 0 and verbose:
+                print(file)
+                print("Before Normalization:")
+
+                print("---------")
+                print("Inputs")
+                print ("Min Max [0] -- Stream_X")
+                print(d[0].min())
+                print(d[0].max())
+
+                print ("Min Max [1] -- Stream_Y")
+                print(d[1].min())
+                print(d[1].max())
+
+                print ("Min Max [2] -- Mask")
+                print(d[2].min())
+                print(d[2].max())
+
+                print("---------")
+                print("Targets")
+                print ("Min Max [0] -- Pressure")
+                print(d[3].min())
+                print(d[3].max())
+
+                print ("Min Max [1] -- Vel_X")
+                print(d[4].min())
+                print(d[4].max())
+
+                print ("Min Max [2] -- Vel_Y")
+                print(d[5].min())
+                print(d[5].max())
+
             data.inputs[i] = d[0:3]
             data.targets[i] = d[3:6]
         print("Number of data loaded:", len(data.inputs) )
@@ -106,15 +141,27 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
     ################################## NORMALIZATION OF TRAINING DATA ##########################################
 
     if removePOffset:
+        if verbose:
+            print("removePOffset - Targets")
         for i in range(data.totalLength):
             data.targets[i,0,:,:] -= np.mean(data.targets[i,0,:,:]) # remove offset
             data.targets[i,0,:,:] -= data.targets[i,0,:,:] * data.inputs[i,2,:,:]  # pressure * mask
+            if verbose:
+                print("Mean [" + str(i) + "]: " + str(np.mean(data.targets[i,0,:,:])))
+        # for j in range(128):
+        #     print(data.targets[0,0,:,j])
 
     # make dimensionless based on current data set
     if makeDimLess:
+        if verbose:
+            print("makeDimLess - Targets")
         for i in range(data.totalLength):
             # only scale outputs, inputs are scaled by max only
-            v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5 
+            # L2-Norm: max(|input x stream|) + max(|input y stream|)
+            if L1L2switch:
+                v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
+            else:
+                v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
             data.targets[i,0,:,:] /= v_norm**2
             data.targets[i,1,:,:] /= v_norm
             data.targets[i,2,:,:] /= v_norm
@@ -148,7 +195,7 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
         data.max_targets_1 = find_absmax(data, 1, 1)
         data.max_targets_2 = find_absmax(data, 1, 2)
         print("Maxima targets "+format( [data.max_targets_0,data.max_targets_1,data.max_targets_2] )) 
-
+    
     data.inputs[:,0,:,:] *= (1.0/data.max_inputs_0)
     data.inputs[:,1,:,:] *= (1.0/data.max_inputs_1)
 
@@ -177,7 +224,10 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
 
         if makeDimLess:
             for i in range(len(files)):
-                v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5 
+                if L1L2switch:
+                    v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
+                else:
+                    v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
                 data.targets[i,0,:,:] /= v_norm**2
                 data.targets[i,1,:,:] /= v_norm
                 data.targets[i,2,:,:] /= v_norm
@@ -226,10 +276,10 @@ class TurbDataset(Dataset):
         self.mode = mode
         self.dataDir = dataDir
         self.dataDirTest = dataDirTest # only for mode==self.TEST
-
+        
         # load & normalize data
         self = LoaderNormalizer(self, isTest=(mode==self.TEST), dataProp=dataProp, shuffle=shuffle)
-
+        
         if not self.mode==self.TEST:
             # split for train/validation sets (80/20) , max 400
             targetLength = self.totalLength - min( int(self.totalLength*0.2) , 400)
@@ -241,7 +291,7 @@ class TurbDataset(Dataset):
             self.inputs = self.inputs[:targetLength]
             self.targets = self.targets[:targetLength]
             self.totalLength = self.inputs.shape[0]
-
+        
     def __len__(self):
         return self.totalLength
 
