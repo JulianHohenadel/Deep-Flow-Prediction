@@ -28,6 +28,7 @@ if len(sys.argv)>1:
 expo = 5
 dataset = TurbDataset(None, mode=TurbDataset.TEST, dataDirTest="../data/test/")
 testLoader = DataLoader(dataset, batch_size=1, shuffle=False)
+L1L2switch = False
 
 targets = torch.FloatTensor(1, 3, 128, 128)
 targets = Variable(targets)
@@ -104,7 +105,10 @@ for si in range(25):
 
         # Calculate the norm
         input_ndarray = inputs_cpu.cpu().numpy()[0]
-        v_norm = ( np.max(np.abs(input_ndarray[0,:,:]))**2 + np.max(np.abs(input_ndarray[1,:,:]))**2 )**0.5
+        if L1L2switch:
+            v_norm = ( np.max(np.abs(input_ndarray[0,:,:]))**2 + np.max(np.abs(input_ndarray[1,:,:]))**2 )**0.5
+        else:
+            v_norm = np.max(np.abs(input_ndarray[0,:,:])) + np.max(np.abs(input_ndarray[1,:,:]))
 
         outputs_denormalized = dataset.denormalize(outputs_cpu, v_norm)
         targets_denormalized = dataset.denormalize(targets_cpu, v_norm)

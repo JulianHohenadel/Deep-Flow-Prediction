@@ -104,6 +104,7 @@ resumeTraining = False
 if resumeTraining:
     ckp_path = "/content/checkpoints/ckp_epoch" + "NUMBER" + ".pt"
     netG, optimizerG, start_epoch = load_ckp(ckp_path, netG, optimizerG)
+    print("Resuming training from " + ckp_path)
 
 ##########################
 print("Training for {} epochs".format(epochs - 1))

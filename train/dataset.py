@@ -157,7 +157,7 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
             print("makeDimLess - Targets")
         for i in range(data.totalLength):
             # only scale outputs, inputs are scaled by max only
-            # L2-Norm: max(|input x stream|) + max(|input y stream|)
+            # L1-Norm: max(|input x stream|) + max(|input y stream|)
             if L1L2switch:
                 v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
             else:
@@ -276,7 +276,10 @@ class TurbDataset(Dataset):
         self.mode = mode
         self.dataDir = dataDir
         self.dataDirTest = dataDirTest # only for mode==self.TEST
-        
+        if L1L2switch:
+            print("L2 Normalization")
+        else:
+            print("L1 Normalization")
         # load & normalize data
         self = LoaderNormalizer(self, isTest=(mode==self.TEST), dataProp=dataProp, shuffle=shuffle)
         
