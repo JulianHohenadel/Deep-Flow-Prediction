@@ -12,14 +12,14 @@ from os import listdir
 import random
 
 # global switch, use fixed max values for dim-less airfoil data?
-fixedAirfoilNormalization = False
+fixedAirfoilNormalization = True
 # global switch, make data dimensionless?
 makeDimLess = True
 # global switch, remove constant offsets from pressure channel?
 removePOffset = True
 
-verbose = True
-L1L2switch = True
+verbose = False
+L1L2switch = False
 
 ## helper - compute absolute of inputs or targets
 def find_absmax(data, use_targets, x):
@@ -212,16 +212,51 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
             print("-------")
             print("L1 Norm")
             print(np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:])))
+        
+        temp_L1 = 0
+        temp_L2 = 0
+        temp_Linf = 0
+
         for i in range(data.totalLength):
             # only scale outputs, inputs are scaled by max only
             if L1L2switch:
                 v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
             else:
-                v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
-                
+                v_norm = np.max(np.array([np.max(np.abs(data.inputs[i,0,:,:])), np.max(np.abs(data.inputs[i,1,:,:]))]))
+
+            tmp_L1 = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
+            tmp_L2 = (np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
+            tmp_Linf = np.max(np.array([np.max(np.abs(data.inputs[i,0,:,:])), np.max(np.abs(data.inputs[i,1,:,:]))]))
+
+            if i < 10:
+                print("Sample " + str(i))
+                print("L1 Norm")
+                print(tmp_L1)
+                print("-------")
+                print("L2 Norm")
+                print(tmp_L2)
+                print("-------")
+                print("L inf Norm")
+                print(tmp_Linf)
+                print("-------")
+                print("")
+
+            temp_L1 += tmp_L1
+            temp_L2 += tmp_L2
+            temp_Linf += tmp_Linf
+
             data.targets[i,0,:,:] /= v_norm**2
             data.targets[i,1,:,:] /= v_norm
             data.targets[i,2,:,:] /= v_norm
+
+        print("Mean L1 Norm:")
+        print(temp_L1 / data.totalLength)
+
+        print("Mean L2 Norm:")
+        print(temp_L2 / data.totalLength)
+
+        print("Mean L inf Norm:")
+        print(temp_Linf / data.totalLength)
 
     # normalize to -1..1 range, from min/max of predefined
     if fixedAirfoilNormalization:
@@ -287,7 +322,7 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
                 if L1L2switch:
                     v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
                 else:
-                    v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
+                    v_norm = np.max(np.array([np.max(np.abs(data.inputs[i,0,:,:])), np.max(np.abs(data.inputs[i,1,:,:]))]))
                 data.targets[i,0,:,:] /= v_norm**2
                 data.targets[i,1,:,:] /= v_norm
                 data.targets[i,2,:,:] /= v_norm
@@ -339,7 +374,7 @@ class TurbDataset(Dataset):
         if L1L2switch:
             print("L2 Normalization")
         else:
-            print("L1 Normalization")
+            print("L inf Normalization")
         # load & normalize data
         self = LoaderNormalizer(self, isTest=(mode==self.TEST), dataProp=dataProp, shuffle=shuffle)
         
