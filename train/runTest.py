@@ -28,7 +28,7 @@ if len(sys.argv)>1:
 expo = 5
 dataset = TurbDataset(None, mode=TurbDataset.TEST, dataDirTest="../data/test/")
 testLoader = DataLoader(dataset, batch_size=1, shuffle=False)
-L1L2switch = False
+L1L2switch = True
 
 targets = torch.FloatTensor(1, 3, 128, 128)
 targets = Variable(targets)

@@ -207,6 +207,11 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
     if makeDimLess:
         if verbose:
             print("makeDimLess - Targets")
+            print("L2 Norm")
+            print((np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5)
+            print("-------")
+            print("L1 Norm")
+            print(np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:])))
         for i in range(data.totalLength):
             # only scale outputs, inputs are scaled by max only
             if L1L2switch:
@@ -238,8 +243,9 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
             print("Using fixed maxima "+format( [data.max_targets_0,data.max_targets_1,data.max_targets_2] ))
 
     else: # use current max values from loaded data
-        print("fixed input maxima  [100, 38.12, 1.00] for comparison")
-        print("fixed target maxima [4.65, 2.04, 2.37] for comparison")
+        if verbose:
+            print("fixed input maxima  [100, 38.12, 1.00] for comparison")
+            print("fixed target maxima [4.65, 2.04, 2.37] for comparison")
         data.max_inputs_0 = find_absmax(data, 0, 0)
         data.max_inputs_1 = find_absmax(data, 0, 1)
         data.max_inputs_2 = find_absmax(data, 0, 2) # mask, not really necessary

@@ -57,7 +57,7 @@ print("Dropout: {}".format(dropout))
 ##########################
 
 # seed = random.randint(0, 2**32 - 1)
-seed = 0
+seed = 2**20
 print("Random seed: {}".format(seed))
 random.seed(seed)
 np.random.seed(seed)
