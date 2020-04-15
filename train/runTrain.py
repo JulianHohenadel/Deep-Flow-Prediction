@@ -6,7 +6,7 @@
 #
 ################
 
-import os, sys, random
+import os, sys, random, time
 import numpy as np
 import torch
 import torch.nn as nn
@@ -19,6 +19,14 @@ from DfpNet import TurbNetG, weights_init
 from loadSave import save_ckp, load_ckp
 import dataset
 import utils
+
+######## Time Helper #####
+def time_convert(sec):
+    mins = sec // 60
+    sec = sec % 60
+    hours = mins // 60
+    mins = mins % 60
+    print("Training Time {0}:{1}:{2}".format(int(hours),int(mins),sec))
 
 ######## Settings ########
 
@@ -57,7 +65,7 @@ print("Dropout: {}".format(dropout))
 ##########################
 
 # seed = random.randint(0, 2**32 - 1)
-seed = 2**20
+seed = 2**30
 print("Random seed: {}".format(seed))
 random.seed(seed)
 np.random.seed(seed)
@@ -108,6 +116,9 @@ if resumeTraining:
 
 ##########################
 print("Training for {} epochs".format(epochs - 1))
+
+# Time start
+start = time.time()
 
 for epoch in range(start_epoch, start_epoch + epochs):
     # print("Starting epoch {} / {}".format((epoch+1),epochs))
@@ -192,5 +203,8 @@ for epoch in range(start_epoch, start_epoch + epochs):
         }
         save_ckp(checkpoint)
 
+# Time End
+end = time.time()
+print(time_convert(end - start))
 torch.save(netG.state_dict(), prefix + "modelG" )
 
