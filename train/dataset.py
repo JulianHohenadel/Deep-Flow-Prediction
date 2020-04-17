@@ -19,7 +19,15 @@ makeDimLess = True
 removePOffset = True
 
 verbose = False
-L1L2switch = False
+
+# Norm Switches
+L2_norm_switch = False
+L1_norm_switch = False
+Linf_norm = False
+
+L075_norm = False
+L050_norm = False
+L025_norm = True
 
 ## helper - compute absolute of inputs or targets
 def find_absmax(data, use_targets, x):
@@ -63,39 +71,30 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
         for i, file in enumerate(files):
             npfile = np.load(data.dataDir + file)
             d = npfile['a']
-            if i < 1 and verbose:
+            if i < 3 and verbose:
                 print("")
                 print(file)
                 
                 print("---------")
                 print("Inputs")
-                print ("Min Max Mean Clamp [0] -- Stream_X")
+                print ("Min Max [0] -- Stream_X")
                 print(d[0].min())
                 print(d[0].max())
-                print(np.mean(d[0]))
-                print("")
-                print(d[0].min() * (1 / np.max(np.abs(d[0]))))
-                print(d[0].max() * (1 / np.max(np.abs(d[0]))))
                 print("")
 
-                print ("Min Max Mean Clamp [1] -- Stream_Y")
+                print ("Min Max [1] -- Stream_Y")
                 print(d[1].min())
                 print(d[1].max())
-                print(np.mean(d[1]))
-                print("")
-                print(d[1].min() * (1 / np.max(np.abs(d[1]))))
-                print(d[1].max() * (1 / np.max(np.abs(d[1]))))
                 print("")
 
-                print ("Min Max Mean [2] -- Mask")
+                print ("Min Max [2] -- Mask")
                 print(d[2].min())
                 print(d[2].max())
-                print(np.mean(d[2]))
                 print("")
 
                 print("---------")
                 print("Targets")
-                print ("Min Max Mean NoOff Norm Clamp ClampPredefined [0] -- Pressure")
+                print ("Min Max Mean NoOff [0] -- Pressure")
                 print(d[3].min())
                 print(d[3].max())
                 print(np.mean(d[3]))
@@ -103,50 +102,17 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
                 print(d[3].min() - np.mean(d[3]))
                 print(d[3].max() - np.mean(d[3]))
                 print("")
-                temp_min_target3 = (d[3].min() - np.mean(d[3])) / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )
-                temp_max_target3 = (d[3].max() - np.mean(d[3])) / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )
-                print(temp_min_target3)
-                print(temp_max_target3)
-                print("")
-                print(temp_min_target3 * (1.0 / np.max(np.abs(np.array([temp_min_target3, temp_max_target3])))))
-                print(temp_max_target3 * (1.0 / np.max(np.abs(np.array([temp_min_target3, temp_max_target3])))))
-                print("")
-                print(temp_min_target3 * (1.0 / 4.65))
-                print(temp_max_target3 * (1.0 / 4.65))
-                print("")
 
-                print ("Min Max Mean Norm Clamp ClampPredefined [1] -- Vel_X")
+                print ("Min Max Mean [1] -- Vel_X")
                 print(d[4].min())
                 print(d[4].max())
                 print(np.mean(d[4]))
                 print("")
-                temp_min_target4 = d[4].min() / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )**0.5
-                temp_max_target4 = d[4].max() / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )**0.5
-                print(temp_min_target4)
-                print(temp_max_target4)
-                print("")
-                print(temp_min_target4 * (1.0 / np.max(np.abs(np.array([temp_min_target4, temp_max_target4])))))
-                print(temp_max_target4 * (1.0 / np.max(np.abs(np.array([temp_min_target4, temp_max_target4])))))
-                print("")
-                print(temp_min_target4 * (1.0 / 2.04))
-                print(temp_max_target4 * (1.0 / 2.04))
-                print("")
 
-                print ("Min Max Mean Norm Clamp ClampPredefined [2] -- Vel_Y")
+                print ("Min Max Mean [2] -- Vel_Y")
                 print(d[5].min())
                 print(d[5].max())
                 print(np.mean(d[5]))
-                print("")
-                temp_min_target5 = d[5].min() / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )**0.5
-                temp_max_target5 = d[5].max() / ( np.max(np.abs(d[0]))**2 + np.max(np.abs(d[1]))**2 )**0.5
-                print(temp_min_target5)
-                print(temp_max_target5)
-                print("")
-                print(temp_min_target5 * (1.0 / np.max(np.abs(np.array([temp_min_target5, temp_max_target5])))))
-                print(temp_max_target5 * (1.0 / np.max(np.abs(np.array([temp_min_target5, temp_max_target5])))))
-                print("")
-                print(temp_min_target5 * (1.0 / 2.04))
-                print(temp_max_target5 * (1.0 / 2.04))
                 print("")
 
             data.inputs[i] = d[0:3]
@@ -200,90 +166,142 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
         for i in range(data.totalLength):
             data.targets[i,0,:,:] -= np.mean(data.targets[i,0,:,:]) # remove offset
             data.targets[i,0,:,:] -= data.targets[i,0,:,:] * data.inputs[i,2,:,:]  # pressure * mask
-            if verbose and i < 5:
-                print("Pressure Mean [" + str(i) + "]: " + str(np.mean(data.targets[i,0,:,:])))
+            # if verbose and i < 5:
+            #     print("Pressure Mean [" + str(i) + "]: " + str(np.mean(data.targets[i,0,:,:])))
 
     # make dimensionless based on current data set
     if makeDimLess:
-        if verbose:
-            print("makeDimLess - Targets")
-            print("L2 Norm")
-            print((np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5)
-            print("-------")
-            print("L1 Norm")
-            print(np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:])))
-            print("-------")
-            print("L inf Norm")
-            print(np.max(np.array([np.max(np.abs(data.inputs[i,0,:,:])), np.max(np.abs(data.inputs[i,1,:,:]))])))
-            print("-------")        
         temp_L1 = 0
         temp_L2 = 0
         temp_Linf = 0
+        temp_L075 = 0
+        temp_L050 = 0
+        temp_L025 = 0
 
         temp_0_mean = 0
         temp_1_mean = 0
 
         for i in range(data.totalLength):
             # only scale outputs, inputs are scaled by max only
-            if L1L2switch:
-                v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
-            else:
-                v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
+            absmax_x = np.max(np.abs(data.inputs[i,0,:,:]))
+            absmax_y = np.max(np.abs(data.inputs[i,1,:,:]))
 
-            tmp_L1 = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
-            tmp_L2 = (np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
-            tmp_Linf = np.max(np.array([np.max(np.abs(data.inputs[i,0,:,:])), np.max(np.abs(data.inputs[i,1,:,:]))]))
+            # Norms
+            L2_norm = (absmax_x**2 + absmax_y**2)**0.5
+            L1_norm = absmax_x + absmax_y
+            Linf_norm = max(absmax_x, absmax_y)
+
+            L075_norm = (absmax_x**0.75 + absmax_y**0.75)**(4.0 / 3.0)
+            L050_norm = (absmax_x**0.5 + absmax_y**0.5)**2
+            L025_norm = (absmax_x**0.25 + absmax_y**0.25)**4
+
+            # Active Norm, default L2
+            v_norm = L2_norm
+
+            if L2_norm_switch:
+                v_norm = L2_norm
+            if L1_norm_switch:
+                v_norm = L1_norm
+            if Linf_norm:
+                v_norm = Linf_norm
+            if L075_norm:
+                v_norm = L075_norm
+            if L050_norm:
+                v_norm = L050_norm
+            if L025_norm:
+                v_norm = L025_norm
 
             tmp_0_mean = np.mean(data.inputs[i,0,:,:])
             tmp_1_mean = np.mean(data.inputs[i,1,:,:])
 
-            if verbose:
-                if i < 1:
-                    print("Sample " + str(i))
-                    print("L1 Norm")
-                    print(tmp_L1)
-                    print("-------")
-                    print("L2 Norm")
-                    print(tmp_L2)
-                    print("-------")
-                    print("L inf Norm")
-                    print(tmp_Linf)
-                    print("-------")
-                    print("[0] Mean / sample")
-                    print(tmp_0_mean)
-                    print("[1] Mean / sample")
-                    print(tmp_1_mean)
-                    print("-------")
+            if verbose and i < 3:
+                print("")
+                print("Sample " + str(i))
+                print("L inf Norm")
+                print(round(Linf_norm, 2))
+                print("-------")
+                print("L2 Norm")
+                print(round(L2_norm, 2))
+                print("-------")
+                print("L1 Norm")
+                print(round(L1_norm, 2))
+                print("-------")
+                print("L0.75 Norm")
+                print(round(L075_norm, 2))
+                print("-------") 
+                print("L0.5 Norm")
+                print(round(L050_norm, 2))
+                print("-------")
+                print("L0.25 Norm")
+                print(round(L025_norm, 2))
+                print("-------")
 
-                temp_L1 += tmp_L1
-                temp_L2 += tmp_L2
-                temp_Linf += tmp_Linf
+            temp_L2 += L2_norm
+            temp_L1 += L1_norm
+            temp_Linf += Linf_norm
+            temp_L075 += L075_norm
+            temp_L050 += L050_norm
+            temp_L025 += L025_norm
 
-                temp_0_mean += tmp_0_mean
-                temp_1_mean += tmp_1_mean
+            temp_0_mean += tmp_0_mean
+            temp_1_mean += tmp_1_mean
 
             data.targets[i,0,:,:] /= v_norm**2
             data.targets[i,1,:,:] /= v_norm
             data.targets[i,2,:,:] /= v_norm
 
+            if verbose and i < 3:
+                min0 = np.min(data.targets[i,0,:,:])
+                max0 = np.max(data.targets[i,0,:,:])
+
+                min1 = np.min(data.targets[i,1,:,:])
+                max1 = np.max(data.targets[i,1,:,:])
+
+                min2 = np.min(data.targets[i,2,:,:])
+                max2 = np.max(data.targets[i,2,:,:])
+
+                print("Dimless Interval [0]")
+                print("[{}, {}]".format(round(min0, 2), round(max0, 2)))
+                print("Dimless Interval [1]")
+                print("[{}, {}]".format(round(min1, 2), round(max1, 2)))
+                print("Dimless Interval [2]")
+                print("[{}, {}]".format(round(min2, 2), round(max2, 2)))
+                print("")
+
         if verbose:
+            print("")
             print("Mean L1 Norm:")
-            print(temp_L1 / data.totalLength)
+            print(round(temp_L1 / data.totalLength, 2))
 
             print("Mean L2 Norm:")
-            print(temp_L2 / data.totalLength)
+            print(round(temp_L2 / data.totalLength, 2))
 
             print("Mean L inf Norm:")
-            print(temp_Linf / data.totalLength)
+            print(round(temp_Linf / data.totalLength, 2))
+
+            print("Mean L0.75 Norm:")
+            print(round(temp_L075 / data.totalLength, 2))
+
+            print("Mean L0.5 Norm:")
+            print(round(temp_L050 / data.totalLength, 2))
+
+            print("Mean L0.25 Norm:")
+            print(round(temp_L025 / data.totalLength, 2))
 
             print("Mean [0]:")
-            print(temp_0_mean / data.totalLength)
+            print(round(temp_0_mean / data.totalLength, 2))
+
             print("Mean [1]:")
-            print(temp_1_mean / data.totalLength)
+            print(round(temp_1_mean / data.totalLength, 2))
+            print("")
 
     # normalize to -1..1 range, from min/max of predefined
+    if verbose:
+        print("Normalizing to [-1, 1]")
     if fixedAirfoilNormalization:
         # hard coded maxima , inputs dont change
+        if verbose:
+            print("Hard coded maxima")
         data.max_inputs_0 = 100.
         data.max_inputs_1 = 38.12
         data.max_inputs_2 = 1.0
@@ -302,6 +320,7 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
 
     else: # use current max values from loaded data
         if verbose:
+            print("Max values from loaded data")
             print("fixed input maxima  [100, 38.12, 1.00] for comparison")
             print("fixed target maxima [4.65, 2.04, 2.37] for comparison")
         data.max_inputs_0 = find_absmax(data, 0, 0)
@@ -320,6 +339,28 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
     data.targets[:,0,:,:] *= (1.0/data.max_targets_0)
     data.targets[:,1,:,:] *= (1.0/data.max_targets_1)
     data.targets[:,2,:,:] *= (1.0/data.max_targets_2)
+
+    if verbose:
+        for i in range(3):
+            print("")
+            print("Sample " + str(i) + " - Target")
+
+            min0 = np.min(data.targets[i,0,:,:])
+            max0 = np.max(data.targets[i,0,:,:])
+
+            min1 = np.min(data.targets[i,1,:,:])
+            max1 = np.max(data.targets[i,1,:,:])
+
+            min2 = np.min(data.targets[i,2,:,:])
+            max2 = np.max(data.targets[i,2,:,:])
+
+            print("Clamped Interval [0]")
+            print("[{}, {}]".format(round(min0, 5), round(max0, 5)))
+            print("Clamped Interval [1]")
+            print("[{}, {}]".format(round(min1, 5), round(max1, 5)))
+            print("Clamped Interval [2]")
+            print("[{}, {}]".format(round(min2, 5), round(max2, 5)))
+            print("")
 
     ###################################### NORMALIZATION  OF TEST DATA #############################################
 
@@ -342,10 +383,34 @@ def LoaderNormalizer(data, isTest = False, shuffle = 0, dataProp = None):
 
         if makeDimLess:
             for i in range(len(files)):
-                if L1L2switch:
-                    v_norm = ( np.max(np.abs(data.inputs[i,0,:,:]))**2 + np.max(np.abs(data.inputs[i,1,:,:]))**2 )**0.5
-                else:
-                    v_norm = np.max(np.abs(data.inputs[i,0,:,:])) + np.max(np.abs(data.inputs[i,1,:,:]))
+                absmax_x = np.max(np.abs(data.inputs[i,0,:,:]))
+                absmax_y = np.max(np.abs(data.inputs[i,1,:,:]))
+
+                # Norms
+                L2_norm = (absmax_x**2 + absmax_y**2)**0.5
+                L1_norm = absmax_x + absmax_y
+                Linf_norm = max(absmax_x, absmax_y)
+
+                L075_norm = (absmax_x**0.75 + absmax_y**0.75)**(4.0 / 3.0)
+                L050_norm = (absmax_x**0.5 + absmax_y**0.5)**2
+                L025_norm = (absmax_x**0.25 + absmax_y**0.25)**4
+
+                # Active Norm, default L2
+                v_norm = L2_norm
+
+                if L2_norm_switch:
+                    v_norm = L2_norm
+                if L1_norm_switch:
+                    v_norm = L1_norm
+                if Linf_norm:
+                    v_norm = Linf_norm
+                if L075_norm:
+                    v_norm = L075_norm
+                if L050_norm:
+                    v_norm = L050_norm
+                if L025_norm:
+                    v_norm = L025_norm
+
                 data.targets[i,0,:,:] /= v_norm**2
                 data.targets[i,1,:,:] /= v_norm
                 data.targets[i,2,:,:] /= v_norm
@@ -394,10 +459,20 @@ class TurbDataset(Dataset):
         self.mode = mode
         self.dataDir = dataDir
         self.dataDirTest = dataDirTest # only for mode==self.TEST
-        if L1L2switch:
-            print("L2 Normalization")
-        else:
-            print("L1 Normalization")
+
+        if L2_norm_switch:
+            print("L2 Regularization")
+        if L1_norm_switch:
+            print("L1 Regularization")
+        if Linf_norm:
+            print("L_inf Regularization")
+        if L075_norm:
+            print("L0.75 Regularization")
+        if L050_norm:
+            print("L0.5 Regularization")
+        if L025_norm:
+            print("L0.25 Regularization")
+
         # load & normalize data
         self = LoaderNormalizer(self, isTest=(mode==self.TEST), dataProp=dataProp, shuffle=shuffle)
         
