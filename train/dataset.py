@@ -12,7 +12,7 @@ from os import listdir
 import random
 
 # global switch, use fixed max values for dim-less airfoil data?
-fixedAirfoilNormalization = True
+fixedAirfoilNormalization = False
 # global switch, make data dimensionless?
 makeDimLess = True
 # global switch, remove constant offsets from pressure channel?
@@ -21,13 +21,13 @@ removePOffset = True
 verbose = False
 
 # Norm Switches
-L2_norm_switch = False
+L2_norm_switch = True
 L1_norm_switch = False
 Linf_norm = False
 
 L075_norm = False
 L050_norm = False
-L025_norm = True
+L025_norm = False
 
 ## helper - compute absolute of inputs or targets
 def find_absmax(data, use_targets, x):

@@ -37,7 +37,7 @@ def blockUNet(in_c, out_c, name, transposed=False, bn=True, relu=True, size=4, p
     
 # generator model
 class TurbNetG(nn.Module):
-    def __init__(self, channelExponent=6, dropout=0.):
+    def __init__(self, channelExponent=5, dropout=0.01):
         super(TurbNetG, self).__init__()
         channels = int(2 ** channelExponent + 0.5)
 
