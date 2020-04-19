@@ -7,7 +7,7 @@
 #
 ################
 
-import os,sys,random,math
+import os,sys,random,math, time
 import numpy as np
 import torch
 import torch.nn as nn
@@ -18,6 +18,16 @@ from dataset import TurbDataset
 from DfpNet import TurbNetG, weights_init
 import utils
 from utils import log
+
+######## Time Helper #####
+def time_convert(sec):
+    mins = sec // 60
+    sec = sec % 60
+    hours = mins // 60
+    mins = mins % 60
+    print("Testing Time {0}:{1}:{2}".format(int(hours),int(mins),round(sec, 2)))
+    os.system("nvidia-smi -L")
+
 
 suffix = "" # customize loading & output if necessary
 prefix = ""
@@ -76,6 +86,9 @@ for si in range(25):
     lossPer_accum = 0
 
     netG.eval()
+    
+    # Time start
+    start = time.time()
 
     for i, data in enumerate(testLoader, 0):
         inputs_cpu, targets_cpu = data
@@ -146,4 +159,6 @@ for si in range(25):
 avgLoss /= len(losses)
 lossStdErr = np.std(losses) / math.sqrt(len(losses))
 log(lf, "Averaged relative error and std dev:   %f , %f " % (avgLoss,lossStdErr) )
-
+# Time End
+end = time.time()
+time_convert(end - start)

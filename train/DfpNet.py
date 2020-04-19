@@ -24,6 +24,14 @@ def blockUNet(in_c, out_c, name, transposed=False, bn=True, relu=True, size=4, p
         block.add_module('%s_relu' % name, nn.ReLU(inplace=True))
     else:
         block.add_module('%s_leakyrelu' % name, nn.LeakyReLU(0.2, inplace=True))
+    # if relu:
+    #     block.add_module('%s_prelu' % name, nn.PReLU(in_c))
+    # else:
+    #     block.add_module('%s_prelu' % name, nn.PReLU(in_c))
+    # if relu:
+    #     block.add_module('%s_relu' % name, nn.ReLU(inplace=True))
+    # else:
+    #     block.add_module('%s_relu' % name, nn.ReLU(inplace=True))
     if not transposed:
         block.add_module('%s_conv' % name, nn.Conv2d(in_c, out_c, kernel_size=size, stride=2, padding=pad, bias=True))
     else:
@@ -59,6 +67,7 @@ class TurbNetG(nn.Module):
         self.dlayer2 = blockUNet(channels*4, channels  , 'dlayer2', transposed=True, bn=True, relu=True, dropout=dropout )
 
         self.dlayer1 = nn.Sequential()
+        # self.dlayer1.add_module('dlayer1_prelu', nn.PReLU(channels*2))
         self.dlayer1.add_module('dlayer1_relu', nn.ReLU(inplace=True))
         self.dlayer1.add_module('dlayer1_tconv', nn.ConvTranspose2d(channels*2, 3, 4, 2, 1, bias=True))
 

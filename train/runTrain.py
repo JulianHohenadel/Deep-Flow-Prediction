@@ -26,7 +26,8 @@ def time_convert(sec):
     sec = sec % 60
     hours = mins // 60
     mins = mins % 60
-    print("Training Time {0}:{1}:{2}".format(int(hours),int(mins),sec))
+    print("Training Time {0}:{1}:{2}".format(int(hours),int(mins),round(sec, 2)))
+    os.system("nvidia-smi -L")
 
 ######## Settings ########
 
@@ -65,7 +66,7 @@ print("Dropout: {}".format(dropout))
 ##########################
 
 # seed = random.randint(0, 2**32 - 1)
-seed = 2**30
+seed = 0
 print("Random seed: {}".format(seed))
 random.seed(seed)
 np.random.seed(seed)
@@ -205,6 +206,6 @@ for epoch in range(start_epoch, start_epoch + epochs):
 
 # Time End
 end = time.time()
-print(time_convert(end - start))
+time_convert(end - start)
 torch.save(netG.state_dict(), prefix + "modelG" )
 

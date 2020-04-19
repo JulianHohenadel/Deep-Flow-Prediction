@@ -12,7 +12,7 @@ from os import listdir
 import random
 
 # global switch, use fixed max values for dim-less airfoil data?
-fixedAirfoilNormalization = False
+fixedAirfoilNormalization = True
 # global switch, make data dimensionless?
 makeDimLess = True
 # global switch, remove constant offsets from pressure channel?
