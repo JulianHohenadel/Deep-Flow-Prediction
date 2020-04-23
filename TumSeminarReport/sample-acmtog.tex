@@ -70,7 +70,15 @@ a jump start for own experiments with computational fluid dynamics. Different tr
 dataset sizes and a flexible network capacity prevents long training time which can arise
 from a potential hardware bottleneck. Using Google Colab different kinds of ReLu activation functions and their impact on the networks accuracy are compared based on their mean errors regarding pressure, velocity and combined. Data preprocessing is one of the most important aspects to make the training fast and converge to good minima. For that reason different vector and pseudo norms are used to profit from dimensionless training data with different scalings. To prove that this generic setup as \cite{Thuerey20} claims is applicable to other partial differential equations (PDE) boundary value problems the network architecture is used to train on infering the Saint-Venant equations, which \cite{Fotiadis2020} uses for the modeling of surface wave propagation.
 \section{Background}
-Reynolds-averaged Navier-Stokes (RANS)
+Reynolds-averaged Navier-Stokes (RANS) equations are used for the modeling of turbulent incompressible flows \cite{Alfonsi}. \\
+The Navier-Stokes equation is a nonlinear partial differential equation which can be seen as Newtons's 2nd law of motion \cite{BISTAFA2018}:
+% Numbered Equation
+\begin{equation}
+\label{eqn:01}
+\frac{\partial{u}}{\partial{t}} + u \cdot \nabla u = g - \frac{1}{\rho} \nabla p + \nu \nabla^{2}u
+\end{equation}
+where $u$ is the velocity vector, $g$ is the acceleration vector due to a body force, $p$ is pressure, 
+$\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} rewrites the left side of the equation as the particles acceleration and the right side as the external forces that affect the particle per unit of mass which yields Newtons's 2nd law of motion. The idea behind RANS is Reynolds decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}. The Reynolds number $Re$ is a dimensionless constant which is needed for the calculation of turbulence models. Depending on the magnitude of the Reynolds number the flow ranges from laminar to turbulent \cite{lissaman1983}. The angle of attack on an airfoill as well as the Reynolds number are important parameter for the creation of the physical model because they affect lift and drag coefficients \cite{lissaman1983}. 
 
 \section{Method}
 
