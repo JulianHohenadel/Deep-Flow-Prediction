@@ -69,6 +69,7 @@ The code is clean and easy to read. Training data is also available which is
 a jump start for own experiments with computational fluid dynamics. Different training
 dataset sizes and a flexible network capacity prevents long training time which can arise
 from a potential hardware bottleneck. Using Google Colab different kinds of ReLu activation functions and their impact on the networks accuracy are compared based on their mean errors regarding pressure, velocity and combined. Data preprocessing is one of the most important aspects to make the training fast and converge to good minima. For that reason different vector and pseudo norms are used to profit from dimensionless training data with different scalings. To prove that this generic setup as \cite{Thuerey20} claims is applicable to other partial differential equations (PDE) boundary value problems the network architecture is used to train on infering the Saint-Venant equations, which \cite{Fotiadis2020} uses for the modeling of surface wave propagation.
+
 \section{Background}
 Reynolds-averaged Navier-Stokes (RANS) equations are used for the modeling of turbulent incompressible flows \cite{Alfonsi}. \\
 The Navier-Stokes equation is a nonlinear partial differential equation which can be seen as Newtons's 2nd law of motion \cite{BISTAFA2018}:
@@ -78,17 +79,50 @@ The Navier-Stokes equation is a nonlinear partial differential equation which ca
 \frac{\partial{u}}{\partial{t}} + u \cdot \nabla u = g - \frac{1}{\rho} \nabla p + \nu \nabla^{2}u
 \end{equation}
 where $u$ is the velocity vector, $g$ is the acceleration vector due to a body force, $p$ is pressure, 
-$\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} rewrites the left side of the equation as the particles acceleration and the right side as the external forces that affect the particle per unit of mass which yields Newtons's 2nd law of motion. The idea behind RANS is Reynolds decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}. The Reynolds number $Re$ is a dimensionless constant which is needed for the calculation of turbulence models. Depending on the magnitude of the Reynolds number the flow ranges from laminar to turbulent \cite{lissaman1983}. The angle of attack on an airfoill as well as the Reynolds number are important parameter for the creation of the physical model because they affect lift and drag coefficients \cite{lissaman1983}. 
+$\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} rewrites the left side of the equation as the particles acceleration and the right side as the external forces that affect the particle per unit of mass which yields Newtons's 2nd law of motion. The idea behind RANS is Reynolds decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}. The Reynolds number $Re$ is a dimensionless constant which is needed for the calculation of turbulence models. Depending on the magnitude of the Reynolds number the flow ranges from laminar to turbulent \cite{lissaman1983}. The angle of attack on an airfoil as well as the Reynolds number are important parameter for the creation of the physical model because they affect lift and drag coefficients \cite{lissaman1983}. 
 
 \section{Method}
+In the following the methodology used by \cite{Thuerey20} to infer the RANS solutions is summarized and extended by experiments evaluated for this report. For consistency reasons the structure is kept equal to the original paper.
+
+\subsection{Data Generation}
+The UIUC database \cite{airfoil} holds a variety of airfoil shapes , shown in Figure~\ref{fig:one}, which were used to generate training data. The provided data is only a 2D coordiante representation of the airfoil shape. To aquire the ground truth velocity and pressure maps the open source package OpenFOAM is used which contains solvers for CFD problems. The range of Reynolds numbers $[0.5, 5] \cdot 10^{6}$ used for generating the ground truth indicates turbulent airflow. Also an angle of attack of $\pm 22.5$ degrees is used. RANS turbulence models distinguish between different classes \cite{Alfonsi}. In this case the one-equation model is used. The solutions are cropped to a resolution of $128x128$ pixels arround the airfoil to speed up training while keeping the most relevant information. A test set is generated seperately with unseen airfoil shapes.
+
+% Figure
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/uiuc_sample}
+  \vspace*{-10mm}
+  \caption{A sample airfoil shape in 2D.}
+  \label{fig:one}
+\end{figure}
+
+\subsection{Pre-processing}
+One training data sample consists of $3$ $128x128$ grids wrapped into a tensor. The channels are a bit mask representing the position and shape of the airfoil, $x$ and $y$ velocity. Inside the airfoil shape all elements contain $0$ in the velocity fields. The velocity maps are initialized with differently scaled freestream velocity vectors which have the corresponting Reynolds number for the sample encoded in them with respect to the magnitude of the elements. For the infered solution of the neural network the shape stays the same as the input. \cite{Thuerey20} use the solution obtained from OpenFOAM as ground truth with channels split into pressure, $x$ and $y$ velocity. The first normalization step is to divide the  ground truth data with the magnitude of the freestream velocity (default: L2 vector norm). The pressure channel is divided with the vector norm squared to make the data dimensionless. This originates in the physical unit of pressure: In an incompressible model the density is constant so to make the pressure dimensionsless it needs to be divided with the squared velocity. \\
+
+% Table
+\begin{table}[h]
+\caption{Norm comparision wrt. accuracy, L2 default}
+\label{tab:one}
+\begin{center}
+\begin{tabular}{l|l|l|l|l}
+  \toprule
+  Norm   & pressure   &	velocity    & combined \\
+  \bf L1	 & \bf 14.19	  & \bf 2.251		& \bf 2.646    \\
+  L2	 & 14.76	  & 2.291		& 2.780	   \\
+  L inf	 & 15.09	  & 2.348		& 2.865	   \\
+  L 0.25 & 31.03	  & 3.106		& 3.272	   \\
+  L 0.5  & 15.64	  & 2.448		& 2.705	   \\
+  L 0.75 & 31.03	  & 3.106		& 3.272	   \\	
+  \bottomrule
+\end{tabular}
+\end{center}
+\bigskip\centering
+\footnotesize The results are averaged over 4 runs with different seeds for all norms.
+\end{table}%
+
+
 
 \begin{comment}
 
-% NS Equation Re Number 
-% DL Architecture ...
-
-
-\section{Method}
 \subsection{Data preparation (Normalization)}
 \subsection{U-Net Architecture}
 \subsection{Training}
@@ -104,19 +138,6 @@ $\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} r
 
 \section{Conclusion}
 \end{comment}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
 
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
 
@@ -187,8 +208,6 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
 
 Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
