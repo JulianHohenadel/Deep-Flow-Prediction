@@ -31,14 +31,14 @@ Airfoil Flows \\ Master-Seminar - Deep Learning in Physics}
 \renewcommand\shortauthors{Hohenadel}
 
 \begin{abstract}
-This report aims to critically assess a deep learning approach to infer Reynolds-Averaged Navier-Stokes solutions. Following the thoughts of \cite{Thuerey20} a fully convolutional U-Net architecture is used to classify the performance on deriving pressure and velocity fields and their distributions. With an evaluation of different hyperparameter regarding network and training data size, the best models yield a mean error relative to pressure and velocity channels of less than 3\% on a test set containing 90 unseen airfoil shapes. \cite{Thuerey20} states that due to this generic approach other PDE boundary value problems on Cartesian grids can also be tackled with this setup.
+This report aims to critically assess a deep learning approach to infer Reynolds-Averaged Navier-Stokes solutions. Following the thoughts of \cite{Thuerey20} a fully convolutional U-Net architecture is used to classify the performance on deriving pressure and velocity fields and their distributions. With an evaluation of different hyperparameter regarding network and training data size, the best models yield a mean error relative to pressure and velocity channels of less than 3\% on a test set containing 90 unseen airfoil shapes. \cite{Thuerey20} states that due to this generic approach other PDE boundary value problems on Cartesian grids can also be tackled with this setup. In this report different adaptations of the network architecture are compared to each other with different data normalization in form of vector norms. Lastly the architecture is used to predict wave propagation on shallow water governed by the Saint-Venant equations.
 \end{abstract}
 
 %
 % End generated code
 %
 
-\keywords{RANS, CNN, U-Net, FCNN, PDE, Cartesian grid, pressure, velocity, airfoil, flow prediction, Eulerian field functions}
+\keywords{RANS, Reynolds-Averaged Navier-Stokes, CNN, U-Net, FCNN, PDE, CFD, Cartesian grid, pressure, velocity, airfoil, flow prediction, Eulerian field functions}
 
 
 \thanks{This report is a part of the lecture, Master-Seminar - Deep Learning in
@@ -48,8 +48,32 @@ This report aims to critically assess a deep learning approach to infer Reynolds
 \maketitle
 
 \section{Introduction}
+Since the last few years machine learning as well as deep learning in the form 
+of neural networks enjoy great popularity. Their broad spectrum of application 
+fields paired with the competitiveness of the researchers and fast available hardware (GPUs) 
+allow the scientific community to squeeze out every bit of performance of their 
+neural networks. \\
+This hype also affects the computational fluid dynamics (CFD) field as \cite{viquerat2019}
+shows with an exponential growth in published papers over the last 20 years.
+Solving flow prediction problems traditionally is coupled with a deep understanding 
+of physics and modeling these complex physical constrains. A neural network with a 
+high enough capacity is capable to capture these high-dimensional, nonlinear constrains.
+Neural networks are universal approximators \cite{Approximation} i.e. there is always a
+trade-off regarding accuracy to the ground truth function (actual dynamics) and the 
+number of parameter in the network. \\
+\cite{Thuerey20} explains the first goal is to alleviate concerns regarding achievable accuracy
+and analyzability of deep learning approaches by showing a relation between accuracy and
+changes in the  hyper-parameter of a network.
+As the second goal the paper provides a testing environment hosted on Github. 
+The code is clean and easy to read. Training data is also available which is 
+a jump start for own experiments with computational fluid dynamics. Different training
+dataset sizes and a flexible network capacity prevents long training time which can arise
+from a potential hardware bottleneck. 
 
 \section{Background}
+Reynolds-averaged Navier-Stokes (RANS)
+
+\section{Method}
 
 \begin{comment}
 
