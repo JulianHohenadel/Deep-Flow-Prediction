@@ -68,8 +68,7 @@ As the second goal the paper provides a testing environment hosted on Github.
 The code is clean and easy to read. Training data is also available which is 
 a jump start for own experiments with computational fluid dynamics. Different training
 dataset sizes and a flexible network capacity prevents long training time which can arise
-from a potential hardware bottleneck. 
-
+from a potential hardware bottleneck. Using Google Colab different kinds of ReLu activation functions and their impact on the networks accuracy are compared based on their mean errors regarding pressure, velocity and combined. Data preprocessing is one of the most important aspects to make the training fast and converge to good minima. For that reason different vector and pseudo norms are used to profit from dimensionless training data with different scalings. To prove that this generic setup as \cite{Thuerey20} claims is applicable to other partial differential equations (PDE) boundary value problems the network architecture is used to train on infering the Saint-Venant equations, which \cite{Fotiadis2020} uses for the modeling of surface wave propagation.
 \section{Background}
 Reynolds-averaged Navier-Stokes (RANS)
 
