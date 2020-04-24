@@ -117,22 +117,47 @@ One training data sample consists of $3$ $128x128$ grids wrapped into a tensor. 
 \end{center}
 \bigskip\centering
 \footnotesize L1 normalization achieves the best error rates (lower is better). \\
-Trained on \cite{Thuerey20} U-net implementation with $1.9 \cdot 10^{6}$ weights.
+Trained on \cite{Thuerey20} U-net implementation with $1.9 \cdot 10^{6}$ weights. \\
+Used seeds for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
 \end{table}%
 
-Table~\ref{tab:one} shows how different vector norms which are only used for normalization of the target data in the pre-processing step change the averaged error of neural networks which are all trained under the same conditions and capacity. \\
+Table~\ref{tab:one} shows how different vector norms which are only used for normalization of the target data in the pre-processing step change the averaged error of neural networks which are all trained under the same conditions and capacity. Figure~\ref{fig:three} visualizes the relations of the p-norms on the unit circle: $L1 \geq L2 \geq L_{inf}$\\
+Interestingly the same inequality relation holds for every error channel shown in Table~\ref{tab:one} as well. The other norms are quasi norms because they violate the required convexity but follow the same definition for a vector $x$: 
+
+% Numbered Equation
+\begin{equation}
+\label{eqn:01}
+||x||_p := {\left( \sum_{i=0}^{n} |x_i|^p \right)}^{\frac{1}{p}}
+\end{equation}
+
+Surprisingly L$0.25$ and L$0.75$ normalization hold exactly the same results, although the absolute norm values on the same sample differ vastly. They also fail to infer target pressure values by arround $2x$ when compared with the other norms. \\
+
+% diff_layer_0_bn_weight
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_weight.png}
+  \caption{Batchnorm weight difference between L1 and L2 normalization.}
+  \label{fig:five}
+\end{figure}
+
+% diff_layer_0_bn_bias
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_bias.png}
+  \caption{Batchnorm bias difference between L1 and L2 normalization.}
+  \label{fig:six}
+\end{figure}
+
+% diff_layer_1_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_1_conv.png}
+  \caption{Convolution weight (1. layer) difference between L1 and L2 normalization}
+  \label{fig:seven}
+\end{figure}
+
 Additionally to norm based normalization the pressure channel is shifted into the origin by subtraction the pressure mean for each sample respectively. By doing this the network does not have to waste ressources on compensating for an off centered pressure map. Lastly \cite{Thuerey20} clamps each channel into an $[-1, 1]$ interval to ensure a maximum of numerical precision.
 
 \subsection{Neural Network Architecture}
-\cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} which was first successfully used for biomedical image segmentation, which can be seen in Figure~\ref{fig:two}.
-The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without he help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating horizontal aligned blocks.
-
-% Figure
-\begin{figure}[H]
-  \includegraphics[width=.4\textwidth]{figures/U-Net_classic}
-  \caption{U-Net architecture, taken from \cite{ronneberger2015}}
-  \label{fig:two}
-\end{figure}
+\cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} (Figure~\ref{fig:two}) which was first successfully used for biomedical image segmentation.
+The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without the help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating horizontal aligned blocks.
 
 
 Only created not in use
@@ -211,14 +236,52 @@ Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming 
 
 Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
 
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.       
+At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.      
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{sample-bibliography}
+
+% Appendix
+\newpage
+\clearpage
+\section{Appendix}
+
+% U-Net
+\begin{figure}[H]
+  \includegraphics[width=.45\textwidth]{figures/U-Net_classic}
+  \caption{U-Net architecture, taken from \cite{ronneberger2015}}
+  \label{fig:two}
+\end{figure}
+
+% Norms
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/norms}
+  \caption{Vector norms visualized on unit circle, taken from \cite{norms_pic}}
+  \label{fig:three}
+\end{figure}
+
+%%%%%%%%
+
+% diff_bottleneck_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_bottleneck_conv.png}
+  \caption{Convolution weight (bottleneck) difference between L1 and L2 normalization, first 100 weights.}
+  \label{fig:four}
+\end{figure}
+
+\begin{comment}
+% diff_layer_14_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_14_conv.png}
+  \caption{}
+  \label{fig:seven}
+\end{figure}
+\end{comment}
+
+
+
+
+% Exact description of U-Net
 
 \end{document}
