@@ -96,10 +96,9 @@ The UIUC database \cite{airfoil} holds a variety of airfoil shapes, shown in Fig
 \end{figure}
 
 \subsection{Pre-processing}
-One training data sample consists of $3$ $128x128$ grids wrapped into a tensor. The channels are a bit mask representing the position and shape of the airfoil, $x$ and $y$ velocity. Inside the airfoil shape all elements contain $0$ in the velocity fields. The velocity maps are initialized with differently scaled freestream velocity vectors which have the corresponting Reynolds number for the sample encoded in them with respect to the magnitude of the elements. For the infered solution of the neural network the shape stays the same as the input. \cite{Thuerey20} use the solution obtained from OpenFOAM as ground truth with channels split into pressure, $x$ and $y$ velocity. The first normalization step is to divide the  ground truth data with the magnitude of the freestream velocity (default: L2 vector norm). The pressure channel is divided with the vector norm squared to make the data dimensionless. This originates in the physical unit of pressure: In an incompressible model the density is constant so to make the pressure dimensionsless it needs to be divided with the squared velocity. \\
-
+One training data sample consists of $3$ $128x128$ grids wrapped into a tensor. The channels are a bit mask representing the position and shape of the airfoil, $x$ and $y$ velocity. Inside the airfoil shape all elements contain $0$ in the velocity fields. The velocity maps are initialized with differently scaled freestream velocity vectors which have the corresponting Reynolds number for the sample encoded in them with respect to the magnitude of the elements. \\For the infered solution of the neural network the shape stays the same as the input. \cite{Thuerey20} use the solution obtained from OpenFOAM as ground truth with channels split into pressure, $x$ and $y$ velocity. The first normalization step is to divide the  ground truth data with the magnitude of the freestream velocity (default: L2 vector norm). The pressure channel is divided with the vector norm squared to make the data dimensionless. This originates in the physical unit of pressure: In an incompressible model the density is constant so to make the pressure dimensionsless it needs to be divided with the squared velocity. \\
 % Table
-\begin{table}[h]
+\begin{table}
 \caption{Norm comparision wrt. error, L2 default (in \%).}
 \label{tab:one}
 \begin{center}
@@ -120,10 +119,12 @@ One training data sample consists of $3$ $128x128$ grids wrapped into a tensor. 
 Trained on \cite{Thuerey20} U-net implementation with $1.9 \cdot 10^{6}$ weights. \\
 Used seeds for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
 \end{table}%
+Additionally to norm based normalization the pressure channel is shifted into the origin by subtraction the pressure mean for each sample respectively. By doing this the network does not have to waste ressources on compensating for an off centered pressure map. Lastly \cite{Thuerey20} clamps each channel into an $[-1, 1]$ interval to ensure a maximum of numerical precision.
 
-Table~\ref{tab:one} shows how different vector norms which are only used for normalization of the target data in the pre-processing step change the averaged error of neural networks which are all trained under the same conditions and capacity. Figure~\ref{fig:three} visualizes the relations of the p-norms on the unit circle: $L1 \geq L2 \geq L_{inf}$\\
-Interestingly the same inequality relation holds for every error channel shown in Table~\ref{tab:one} as well. The other norms are quasi norms because they violate the required convexity but follow the same definition for a vector $x$: 
 
+
+Table~\ref{tab:one} shows how different vector norms which are only used for normalization of the target data in the pre-processing step change the averaged error of neural networks which are all trained under the same conditions and capacity. Figure~\ref{fig:three} in the Appendix visualizes the relations of the p-norms on the unit circle: $L1 \geq L2 \geq L_{inf}$\\
+Interestingly the same inequality relation holds for every error channel shown in Table~\ref{tab:one} as well. The other norms are quasi norms because they violate the required convexity but follow the same definition for a vector $x$:
 % Numbered Equation
 \begin{equation}
 \label{eqn:01}
@@ -131,36 +132,51 @@ Interestingly the same inequality relation holds for every error channel shown i
 \end{equation}
 
 Surprisingly L$0.25$ and L$0.75$ normalization hold exactly the same results, although the absolute norm values on the same sample differ vastly. They also fail to infer target pressure values by arround $2x$ when compared with the other norms. \\
+To explain the error margin between L$1$ and L$2$ normalization this report takes a closer look at the trained weights in the network. The filter used in the convolutional layers should still capture the same patterns to identify regions of interest, independent of the used norm. Figure~\ref{fig:seven} shows the  difference in weights created in the first layer. 
 
+% diff_layer_1_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_1_conv.png}
+  \caption{Convolution weight (first layer) difference: L1 and L2 normalization \\ Filter kernel size: 4x4}
+  \label{fig:seven}
+\end{figure}
+
+The diversity in the first layer is shown by the different color shades. Descending deeper into the U-Net convolutional filter get far more heterogen (see Figure~\ref{fig:four} in the Appendix). After the bottleneck this effect progressively fades out. The weights in the last layer are besides a few pixels e.g. single weights mostly identical. This can be seen in Figure~\ref{fig:eight}.
+
+% diff_layer_14_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_14_conv.png}
+  \caption{Convolution weight (last layer) difference: L1 and L2 normalization \\ Filter kernel size: 4x4}
+  \label{fig:eight}
+\end{figure}
+
+Batch normalization is used to reduce internal covarince shift \cite{ioffe2015}. 
+$\gamma$ and $\beta$ are two learnable parameter to influence variance and mean of the input data to improve training. Because \cite{Thuerey20} works with shuffeled datasets it is not possible to directly compare the learned weights. The $\gamma$ and $\beta$ per layer mean differences between L1 and L2 normalization are in a range of $[10^{-3}, 10^{-2}]$. \\ 
+It is not apparent why and how the weight changes affect the accuracy. Most likely the error improvement is far from being significant enough. With bigger filter kernel sizes (e.g. VGG nets) in the convolutional layers the detected structures would be more comparable, while a maximal size of 4x4 pixels is pretty limiting in a visual comparison.
+
+\begin{comment}
 % diff_layer_0_bn_weight
 \begin{figure}[H]
   \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_weight.png}
-  \caption{Batchnorm weight difference between L1 and L2 normalization.}
+  \caption{Batchnorm (1. layer) variance $\gamma$ difference: L1 and L2 normalization.}
   \label{fig:five}
 \end{figure}
 
 % diff_layer_0_bn_bias
 \begin{figure}[H]
   \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_bias.png}
-  \caption{Batchnorm bias difference between L1 and L2 normalization.}
+  \caption{Batchnorm (1. layer) mean $\beta$ difference: L1 and L2 normalization.}
   \label{fig:six}
 \end{figure}
+\end{comment}
 
-% diff_layer_1_conv
-\begin{figure}[H]
-  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_1_conv.png}
-  \caption{Convolution weight (1. layer) difference between L1 and L2 normalization}
-  \label{fig:seven}
-\end{figure}
 
-Additionally to norm based normalization the pressure channel is shifted into the origin by subtraction the pressure mean for each sample respectively. By doing this the network does not have to waste ressources on compensating for an off centered pressure map. Lastly \cite{Thuerey20} clamps each channel into an $[-1, 1]$ interval to ensure a maximum of numerical precision.
 
 \subsection{Neural Network Architecture}
 \cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} (Figure~\ref{fig:two}) which was first successfully used for biomedical image segmentation.
 The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without the help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating horizontal aligned blocks.
 
-
-Only created not in use
+TODO
 \begin{table}[h]
 \caption{Activation function comparision wrt. error (in \%).}
 \label{tab:two}
@@ -230,13 +246,7 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 
 Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
 
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.      
+Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
@@ -266,21 +276,9 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
 % diff_bottleneck_conv
 \begin{figure}[H]
   \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_bottleneck_conv.png}
-  \caption{Convolution weight (bottleneck) difference between L1 and L2 normalization, first 100 weights.}
+  \caption{Convolution weight (bottleneck) difference between L1 and L2 normalization, first 100 weights. Filter kernel size: 1x1}
   \label{fig:four}
 \end{figure}
-
-\begin{comment}
-% diff_layer_14_conv
-\begin{figure}[H]
-  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_14_conv.png}
-  \caption{}
-  \label{fig:seven}
-\end{figure}
-\end{comment}
-
-
-
 
 % Exact description of U-Net
 
