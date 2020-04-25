@@ -207,25 +207,34 @@ Table~\ref{tab:three} shows that the standard setup could not achieve a better r
 \subsection{Supervised Training}
 The training setup used by \cite{Thuerey20} consists of an $L_1$ loss, learing rate decay and the use of the Adam optimizer \cite{kingma2014adam} with default PyTorch settings except $\beta_1$ (set to $0.5$). Adam makes use of first and second momentum $\beta_1$ and $\beta_2$ respectively. The main idea is to accelerate into directions where the gradient accumulates ($\beta_1$) and also dampen the gradients variance ($\beta_2$). Lowering  $\beta_1$ slows down acceleration but can be useful if you overshoot good local minima. \cite{Thuerey20} also found that generating more training data is prefered over using adversarial training.\\
 \cite{Thuerey20} evaluated their accuracy with multiple U-Nets with the same architecture but different capacity ranging from $122k$ up to $30.9m$ over training data ranging from $100$ up to $12.8k$ samples. While the $30.9m$ model suffers from its huge capacity in form of overfitting small data sets it achieves a combined relative error of $2.6\%$ using the $12.8k$ sample training dataset. The $1.9m$ and $7.7m$ model also show close results wrt. the highest capacity model.\\
+\cite{Thuerey20} explored generalization with an additional dataset in which the airfoil shapes were sheared by $\pm15\%$. The datasets are used pure or mixed with equal contribution.
+The $30.9m$ model is able to use its capacity to bring the error down to $2.32\%$ when training with a $51k$ mixed dataset. Compared with the regular dataset containing the same amount of samples the added complexity (i.e. regularization) benefits the training.
+\cite{Thuerey20} achieves a speed up of ca. $1000x$ when using a NVidia GTX 1080 GPU for inference of the neural networks compared to OpenFOAM.
 
-\begin{comment}
+\section{Transfer}
+To show another use case for the models created by \cite{Thuerey20} they will be used to infer the propagation of surface waves governed by the Saint-Venant equations as they are related with the Navier-Stokes equations which is examined in \cite{Fotiadis2020}. For this experiment the U-Net architecture will be the same except the input channels of the first layer which now contain the last $n$ timesteps. The same is applied to the output of the last layer to predict the next $m$ timesteps. As a testing enviroment the GitHub repository provided by \cite{Fotiadis2020} is used. To be consistent with \cite{Fotiadis2020} U-net architecture and to make the results comparable $n=5$ and $m=20$ with no dropout was used in this setup. Due to Google Colab hardware and runtime restrictions both models were only trained for 50 epochs and both neural nets have a capacity between $[7.7 \cdot 10^6, 7.8 \cdot 10^6]$.\\
+The main difference to \cite{Thuerey20} architecture is that \cite{Fotiadis2020} U-net is more shallow with only 3 convolution blocks in the encoder and decoder respectivly as well as the bottleneck resolution being 16x16. There is also no batch normalization layer after every convolution layer. Downsampling is done with max pooling instead of strided convolutions and all activation functions use ReLu. \\
+Comparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost similar up to 35 time-steps ahead and after 80 time-steps the gap is still relatively small. \cite{Fotiadis2020} achieve with their U-Net a speed-up of 241x compared with numerical simulations. This again shows the enormous potential of CNN's when compared with classsical solvers for CFD and PDE.
+
+% Transfer 1
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/transfer/DFP_Test_RMSE_Quality_start_15}
+  \caption{RMSE error on test set with \cite{Thuerey20} architecture}
+  \label{fig:T1}
+\end{figure}
+
+% Transfer 2
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/transfer/Transfer_Test_RMSE_Quality_start_15}
+  \caption{RMSE error on test set with \cite{Fotiadis2020} architecture}
+  \label{fig:T2}
+\end{figure}
+
+
 \section{Discussion}
-\section{Conclusion}
-\end{comment}
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
+TODO
+\section{Conclusion} 
+TODO
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
