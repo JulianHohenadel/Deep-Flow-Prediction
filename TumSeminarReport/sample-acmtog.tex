@@ -232,18 +232,19 @@ Comparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost simila
 
 
 \section{Discussion}
-\cite{Thuerey20} present an out-of-the-box well training derivate of the U-Net architecture proposed by \cite{ronneberger2015}. Despite being firstly designed for image segmentation it is applicable in a wide variety of research fields. \cite{Fotiadis2020} show that U-Nets can outperform LSTM's in time-series problems in accuracy as well as in speed up with a fraction of capacity. Convolutions paired with an encoder decoder structure seem to catch regions of intrest fast and reliable. Looking at the validation and mean error plots shown in \cite{Thuerey20} the accuracy does not suffer too much from models with a lot less capacity. Their natural regularization effect should make improvement possible even with a small mixed dataset which would again increase inference speed. It is not clear why problem specific solver should infer airfoil flows if the accuracy of neural networks can be improved even more. \cite{Thuerey20} show that the data pre processing (i.e. reducing the space of solutions) is almost more important than the actual fine tuning of the models. This research is imporant because it questions the use of solvers and shows the rapid progress wrt. to accuracy of convolutional neural networks.
+\cite{Fotiadis2020} show that U-Nets can outperform LSTM's in accuracy as well as in speed up with a fraction of capacity (even in time series-problems). Convolutions paired with an encoder decoder structure seem to catch regions of intrest fast and reliable. Looking at the validation and mean error plots shown in \cite{Thuerey20} the accuracy does not suffer too much from models with a lot less capacity. Their natural regularization effect should make improvement possible even with a small mixed dataset which would again increase inference speed. It is not clear why problem specific solver should infer airfoil flows if the accuracy of neural networks can be improved even more. \cite{Thuerey20} show that the data pre processing (i.e. reducing the space of solutions) is almost more important than the actual fine tuning of the models. This research is imporant because it questions the use of solvers and shows the rapid progress wrt. to accuracy of convolutional neural networks in CFD problems.
 
 \section{Conclusion} 
-TODO
+\cite{Thuerey20} present an out-of-the-box well training derivate of the U-Net architecture proposed by \cite{ronneberger2015}. Despite being firstly designed for image segmentation it is applicable in a wide variety of research fields. This report compared different vector and pseudo norms for the pre-processing step and their influence on the training process. PReLu as an activation function was compared to classic ReLu and leaky ReLu. While hard coded activation parameter can provide good training results after hyperparameter tuning it can be worth testing activations that train themselves through backpropagation. For the cost of some additional weights given enough iterations it may be worth considering. The U-Net being applicable to other PDE problems leaves a lot of possible future work especially when convolutional neural networks are able to outperform LSTM's in time-series predictions.\\
 
+\newpage
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{sample-bibliography}
 
 % Appendix
 \newpage
-\clearpage
+%\clearpage
 \section{Appendix}
 
 % U-Net
