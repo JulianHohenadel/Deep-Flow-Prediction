@@ -154,29 +154,12 @@ Batch normalization is used to reduce internal covarince shift \cite{ioffe2015}.
 $\gamma$ and $\beta$ are two learnable parameter to influence variance and mean of the input data to improve training. Because \cite{Thuerey20} works with shuffeled datasets it is not possible to directly compare the learned weights. The $\gamma$ and $\beta$ per layer mean differences between L1 and L2 normalization are in a range of $[10^{-3}, 10^{-2}]$. \\ 
 It is not apparent why and how the weight changes affect the accuracy. Most likely the error improvement is far from being significant enough for a network with in this case close to $2 \cdot 10^{6}$ parameter. With bigger filter kernel sizes (e.g. VGG nets) in the convolutional layers the detected structures would be more comparable, while a maximal size of 4x4 pixels is limiting a visual comparison.
 
-\begin{comment}
-% diff_layer_0_bn_weight
-\begin{figure}[H]
-  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_weight.png}
-  \caption{Batchnorm (1. layer) variance $\gamma$ difference: L1 and L2 normalization.}
-  \label{fig:five}
-\end{figure}
-
-% diff_layer_0_bn_bias
-\begin{figure}[H]
-  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_0_bn_bias.png}
-  \caption{Batchnorm (1. layer) mean $\beta$ difference: L1 and L2 normalization.}
-  \label{fig:six}
-\end{figure}
-\end{comment}
-
-
 \subsection{Neural Network Architecture}
 \cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} (Figure~\ref{fig:two}) which was first successfully used for biomedical image segmentation.
 The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without the help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating the horizontal aligned blocks.
 
 \begin{table}[h]
-\caption{Activation function comparision wrt. error after 80 epochs (in \%).}
+\caption{Activation function comparision wrt. error \\ after 80k iterations (in \%).}
 \label{tab:two}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
@@ -202,7 +185,7 @@ Regular ReLu for both encoder and decoder is not a benefical choice as informati
 PReLu is close to the performance of the standard setup but as the values suggest still needs more training time. PReLu also adds more weights to the network thus increasing its capacity. 
 
 \begin{table}[h]
-\caption{Activation function comparision wrt. error after 160 epochs (in \%).}
+\caption{Activation function comparision wrt. error \\ after 160k iterations (in \%).}
 \label{tab:three}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
@@ -219,25 +202,14 @@ the best error rates (lower is better). \\
 Used seed for training: $0$
 \end{table}%
 
-Table~\ref{tab:three} shows that the standard setup could not achieve a better result while PReLu was able the reduce its error by $0.2\%$. These results were obtained with a single seed and therefore may not be that conclusive but rather indicate a trend. PReLu activations on the encoder part have a mean parameter value close to the $0.2$ proposed by \cite{Thuerey20}. PReLu is also able to train one parameter for each input channel adding even more flexibility with the cost of additional weights.
+Table~\ref{tab:three} shows that the standard setup could not achieve a better result while PReLu was able the reduce its error by $0.2\%$. These results were obtained with a single seed and therefore may not be that conclusive but rather indicate a trend. PReLu activations on the encoder part have a mean parameter value close to the $0.2$ proposed by \cite{Thuerey20}. PReLu is also able to train one parameter for each input channel adding even more flexibility with the cost of additional weights. Despite \cite{Thuerey20} using a learning rate decay (reduction to $10\%$ of the inital value after $50\%$ of the training) which PyTorch states is not well suited to combine with PReLu the activation function does not seem to be affected by it.
 
 \subsection{Supervised Training}
+The training setup used by \cite{Thuerey20} consists of an $L_1$ loss, learing rate decay and the use of the Adam optimizer \cite{kingma2014adam} with default PyTorch settings except $\beta_1$ (set to $0.5$). Adam makes use of first and second momentum $\beta_1$ and $\beta_2$ respectively. The main idea is to accelerate into directions where the gradient accumulates ($\beta_1$) and also dampen the gradients variance ($\beta_2$). Lowering  $\beta_1$ slows down acceleration but can be useful if you overshoot good local minima. \cite{Thuerey20} also found that generating more training data is prefered over using adversarial training.\\
+\cite{Thuerey20} evaluated their accuracy with multiple U-Nets with the same architecture but different capacity ranging from $122k$ up to $30.9m$ over training data ranging from $100$ up to $12.8k$ samples. While the $30.9m$ model suffers from its huge capacity in form of overfitting small data sets it achieves a combined relative error of $2.6\%$ using the $12.8k$ sample training dataset. The $1.9m$ and $7.7m$ model also show close results wrt. the highest capacity model.\\
 
 \begin{comment}
-
-\subsection{Data preparation (Normalization)}
-\subsection{U-Net Architecture}
-\subsection{Training}
-\subsection{Accuracy}
-\subsection{Performance}
-
-\section{Prelu, performance, weight visual, test with mean in leaky}
-\section{Normalization Norms}
-\section{Conv Filter - Gap between Params in NN}
-\section{Transfer to wave propagation}
-
 \section{Discussion}
-
 \section{Conclusion}
 \end{comment}
 
@@ -254,26 +226,6 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
 
 Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
-
-Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis.   
-
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, At accusam aliquyam diam diam dolore dolores duo eirmod eos erat, et nonumy sed tempor et et invidunt justo labore Stet clita ea et gubergren, kasd magna no rebum. sanctus sea sed takimata ut vero voluptua. est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat.   
-
-Consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus.   
-
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
-
-Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
-
-Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
 
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
