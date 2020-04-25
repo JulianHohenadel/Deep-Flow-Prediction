@@ -152,7 +152,7 @@ The diversity in the first layer is shown by the different color shades. Descend
 
 Batch normalization is used to reduce internal covarince shift \cite{ioffe2015}. 
 $\gamma$ and $\beta$ are two learnable parameter to influence variance and mean of the input data to improve training. Because \cite{Thuerey20} works with shuffeled datasets it is not possible to directly compare the learned weights. The $\gamma$ and $\beta$ per layer mean differences between L1 and L2 normalization are in a range of $[10^{-3}, 10^{-2}]$. \\ 
-It is not apparent why and how the weight changes affect the accuracy. Most likely the error improvement is far from being significant enough. With bigger filter kernel sizes (e.g. VGG nets) in the convolutional layers the detected structures would be more comparable, while a maximal size of 4x4 pixels is pretty limiting in a visual comparison.
+It is not apparent why and how the weight changes affect the accuracy. Most likely the error improvement is far from being significant enough for a network with in this case close to $2 \cdot 10^{6}$ parameter. With bigger filter kernel sizes (e.g. VGG nets) in the convolutional layers the detected structures would be more comparable, while a maximal size of 4x4 pixels is limiting a visual comparison.
 
 \begin{comment}
 % diff_layer_0_bn_weight
@@ -171,14 +171,12 @@ It is not apparent why and how the weight changes affect the accuracy. Most like
 \end{comment}
 
 
-
 \subsection{Neural Network Architecture}
 \cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} (Figure~\ref{fig:two}) which was first successfully used for biomedical image segmentation.
-The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without the help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating horizontal aligned blocks.
+The U-Net architecure consists of two parts. The left side of the "U" functions as an encoder. It captures the context of the image. While width and height of the image get smaller the depth of the channels increases. The right side acts as a decoder. It upsamples the feature maps to recover spatial locations. The behavior of the image size and depth is contrary to the encoder part. Every block is implemented similary: activation function (leaky ReLu in encoder, ReLu in decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. Without the help of skip connections information captured in the initial layers of the U-Net which is needed for reconstruction in the decoding part may get lost. This can be avoided by concatenating the horizontal aligned blocks.
 
-TODO
 \begin{table}[h]
-\caption{Activation function comparision wrt. error (in \%).}
+\caption{Activation function comparision wrt. error after 80 epochs (in \%).}
 \label{tab:two}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
@@ -191,8 +189,37 @@ TODO
 \end{tabular}
 \end{center}
 \bigskip\centering
-\footnotesize The activation functions proposed by \cite{Thuerey20} achieve \\ the best error rates (lower is better).
+\footnotesize The activation functions proposed by \cite{Thuerey20} achieve \\ 
+the best error rates (lower is better). \\
+Used seeds for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
+
 \end{table}%
+
+This report compares the use of different activation functions as they not only act as a nonlinearity. They should also control the flow of the gradients through the network which is essential for proper learning.\\
+Rectified Linear Units (ReLu) and variants of ReLu are nowerdays the standard choice as an activation function. ReLu does not saturate and yield large and consistent gradients. Both are important for fast convergence. The problem with ReLu is that it can "die" (e.g. the output is 0) which lowers the capacity of the network by deactivating neurons as their output is multiplied with 0.\\
+Leaky ReLu does have the same benefits as regualr ReLu but does not suffer from the "dying out" problem. For this reason the same network architecture was trained with the activation setup \cite{Thuerey20} used as well as all activations set to vanilla ReLu and PReLu respectivly which can be seen in Table~\ref{tab:two}. PReLu makes use of a learnable parameter which sets the negative slope through backpropagation while leaky ReLu has a fixed hard coded parameter for that reason ($0.2$ was used by \cite{Thuerey20}). Table~\ref{tab:two} shows the results with the activations used by \cite{Thuerey20} showing the best results with regard to accuracy. \\
+Regular ReLu for both encoder and decoder is not a benefical choice as information which is lost to the "dead" ReLu in the encoder can only be partially (with skip connections) or not at all be recovered and forwarded to the decoder. This shows in higher error rates especially for the pressure map. \\
+PReLu is close to the performance of the standard setup but as the values suggest still needs more training time. PReLu also adds more weights to the network thus increasing its capacity. 
+
+\begin{table}[h]
+\caption{Activation function comparision wrt. error after 160 epochs (in \%).}
+\label{tab:three}
+\begin{center}
+\begin{tabular}{l|l|l|l|l}
+  \toprule
+  Norm   & pressure   &	velocity    & combined \\
+  Std	 & 14.76	  & 2.296		&  2.787   \\
+  \bf PReLu	 & \bf 14.69	  & \bf 2.216		& \bf 2.676	   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\bigskip\centering
+\footnotesize The PReLu activation function achieves  
+the best error rates (lower is better). \\
+Used seed for training: $0$
+\end{table}%
+
+Table~\ref{tab:three} shows that the standard setup could not achieve a better result while PReLu was able the reduce its error by $0.2\%$. These results were obtained with a single seed and therefore may not be that conclusive but rather indicate a trend. PReLu activations on the encoder part have a mean parameter value close to the $0.2$ proposed by \cite{Thuerey20}. PReLu is also able to train one parameter for each input channel adding even more flexibility with the cost of additional weights.
 
 \subsection{Supervised Training}
 
