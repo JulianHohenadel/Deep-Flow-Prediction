@@ -1,29 +1,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Folie: Datagen            %%
+%% Folie: DataGen            %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-    \frametitle{Data Generation}
-
-TODO
-
-\end{frame}
-\clearpage
 
 \begin{frame}
     \frametitle{Data Generation}
 
+\vspace*{1cm}
 \begin{multicols}{2}
-    TODO
+    Airfoil shapes are provided by the UIUC database
 
-    Punkt 1
+    Reynolds number: $[0.5, 5] \cdot 10^6$ (highly turbulent)
 
-    Punkt 2
+    Angle of attack: $[-22.5, 22.5]$
 
-    Punkt 3
-
-    Punkt 4
+    Ground truth generated with OpenFOAM \newline (pressure, x velocity, y velocity)
+    
+    Training data resolution: $3\times 128 \times 128$
     \vfill\columnbreak
-    \includegraphics[width=\columnwidth, height=.7\textheight]{./Ressourcen/Praesentation/Bilder/uiuc_sample.png}%
+    \includegraphics[width=\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/uiuc_sample.png}%
 \end{multicols}
     
 \end{frame}
