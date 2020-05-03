@@ -3,34 +3,47 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Discussion}
- TODO
+	\vspace*{0.8cm}
+    \textbf{Positiv}
+
+\begin{PraesentationAufzaehlung}
+	\item Relative error $< 3\%$
+	
+	\item Convolutions paired with an encoder decoder structure seem to \newline catch regions of interest fast and reliable
+
+    \item U-Nets can outperform LSTM’s in accuracy as well as in speed \newline with a fraction of capacity (in time-series problems)
+    
+    \item accuracy does not suffer too much from models with a lot less capacity \newline mostly affects sharpness of solutions
+
+    \item Inference speed is $1000\times$ when compared with OpenFOAM solver
+    
+    \item Accuracy improvements still possible (bigger models, more training data)
+\end{PraesentationAufzaehlung}
+
 \end{frame}
 \clearpage
 
 \begin{frame}
     \frametitle{Discussion}
-
-\begin{multicols}{2}
-    \textbf{Positiv}
-
-    Punkt 1
-
-    Punkt 2
-
-    Punkt 3
-
-    Punkt 4
-    \vfill\columnbreak
+	\vspace*{0.8cm}
     \textbf{Negativ}
 
-    Punkt 1
+\begin{PraesentationAufzaehlung}
+\item Proir knowledge needed for proper pre-processing
 
-    Punkt 2
+\item Solvers needed for dataset generation
 
-    Punkt 3
+\item Extrapolation yields mediocre results
 
-    Punkt 4
-\end{multicols}
-    
+\item Fresh Training needed for other shapes (e.g. cars in wind tunnel) \newline -- transfer learning unlikely
+
+\item Trade off: training speed -- grid resolution
+
+\item Possible data loss from transformation: \newline adaptive grid (solver) $\implies$ cartesian grid (NN)
+
+\item no guarantee for correctness
+
+\item Accuracy improvements computationally expensive likely requires \newline tailored architectures and loss functions
+\end{PraesentationAufzaehlung}
 \end{frame}
 \clearpage
