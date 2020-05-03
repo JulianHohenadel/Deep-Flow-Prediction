@@ -1,7 +1,38 @@
 \begin{frame}
     \frametitle{Generalization}
+    \vspace*{0.8cm}
+Motivation: Key question in deep learning: How well does my NN perform on unseen data?
 
-TODO
+
+\includegraphics[width=0.85\textwidth, height=.5\textheight]{./Ressourcen/Praesentation/Bilder/generalization.png}%
+
+\vspace*{-0.6cm}
+
+Taken from Deep Learning by Adam Gibson, Josh Patterson, O'Reily Media Inc., 2017
+
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization}
+    \vspace*{0.8cm}
+To test generalization new datasets need to be created
+
+Generation of $1$ training sample:  $\approx 70$ seconds (using Google Colab)
+
+Generation of $12.8k$ training samples: $> 10$ days -- not feasible 
+
+$\implies$ Generate only new test sets containing $90$ samples: $< 2$ hours -- feasible
+
+Extrapolation with different angle of attack intervals, default: $[-22.5, 22.5]$:
+
+\begin{PraesentationAufzaehlung}
+    \item $[-45, 45]$
+    \item $[-90, 90]$
+    \item $[-67.5, -22.5]$
+    \item $[22.5, 67.5]$
+\end{PraesentationAufzaehlung}
+
 
 \end{frame}
 \clearpage
@@ -10,8 +41,8 @@ TODO
 %% Folie: Diagramm                                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Generalization}
-Error percentage of different angle of attack intervals wrt. ground truth $[-22.5 , 22.5]$
+    \frametitle{Generalization -- Evaluation}
+Error increase of different angle of attack intervals wrt. ground truth $[-22.5 , 22.5]$
 \begin{center}
 	\vspace*{-1cm}
     \begin{tikzpicture}

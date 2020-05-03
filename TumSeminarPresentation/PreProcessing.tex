@@ -36,7 +36,7 @@ Data from the RANS solution
 
 Motivation: Flatten space of solutions, accelerate learning by simplifing the learning task for the NN
 
-Normaliztion of target channels by division with freestream magnitude (vector norm, default: L2):\newline
+Normalization of target channels by division with freestream magnitude (vector norm, default: L2):\newline
 This makes pressure and velocity dimensionless
 
 $\tilde{v_{o}} = \frac{v_{o}}{\|v_{i}\|}, \quad \tilde{p_{o}} = \frac{p_{o}}{\|v_{i}\|^{2}}$ -- important to remove quadratic scaling of pressure
@@ -54,7 +54,7 @@ Velocity: $[v]_{SI} = \frac{m}{s}$ \newline
 \vspace*{0.8cm}
 Motivation: eliminate ill-posed learning goal \& improve numerical precision
 
-Spatially move pressure distribution into the origin
+Spatially move pressure distribution into the origin -- RANS typically only needs $\nabla_{p}$ for computation
 
 $\hat{p_o} = \tilde{p_o} - p_{mean}$    
 
