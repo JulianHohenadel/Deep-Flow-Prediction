@@ -20,9 +20,9 @@ Reynolds number encoded as differently scaled \newline freestream velocity vecto
 
 1. Pressure field
   
-2. x velocity
+2. x velocity field
    
-3. y velocity
+3. y velocity field
 
 Data from the RANS solution
 \end{multicols}
@@ -32,13 +32,34 @@ Data from the RANS solution
 
 \begin{frame}
     \frametitle{Pre-processing -- Normalization}
-\
+\vspace*{0.8cm}
+
+Motivation: Flatten space of solutions, accelerate learning by simplifing the learning task for the NN
+
+Normaliztion of target channels by division with freestream magnitude (vector norm, default: L2):\newline
+This makes pressure and velocity dimensionless
+
+$\tilde{v_{o}} = \frac{v_{o}}{\|v_{i}\|}, \quad \tilde{p_{o}} = \frac{p_{o}}{\|v_{i}\|^{2}}$ -- important to remove quadratic scaling of pressure
+
+For a better understanding: \newline
+Pressure: $[p]_{SI} = 1 Pa = 1 \frac{kg}{m \cdot s^2}$ \newline
+Density: $[\rho]_{SI} = 1 \frac{kg}{m^3}$ -- constant in incompressible flow \newline
+Velocity: $[v]_{SI} = \frac{m}{s}$ \newline
+
 \end{frame}
 \clearpage
 
 \begin{frame}
-    \frametitle{Pre-processing -- Offset}
-\
+    \frametitle{Pre-processing -- Offset removal \& value clamping}
+\vspace*{0.8cm}
+Motivation: eliminate ill-posed learning goal \& improve numerical precision
+
+Spatially move pressure distribution into the origin
+
+$\hat{p_o} = \tilde{p_o} - p_{mean}$    
+
+Clamp both input and target channels into $[-1, 1]$ range by diving by the maximum absolute value
+
 \end{frame}
 \clearpage
 
@@ -47,7 +68,7 @@ Data from the RANS solution
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Pre-processing -- Evaluation}
- Vector norms used in pre-processing comparision wrt. error, L2 default (in \%)\newline
+ Vector norms used in pre-processing comparision wrt. error, default: L2 (in \%)\newline
  L1 normalization achieves the best error rates (p, vel, combined: \textbf{14.19}\%, \textbf{2.251}\%, \textbf{2.646}\% -- L2: 14.76\%, 2.291\%, 2.780\%)\newline
 \begin{center}
 	\vspace*{-1.5cm}
