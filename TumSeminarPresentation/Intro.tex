@@ -2,7 +2,41 @@
 %% Folie: Intro         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Introduction}
- TODO
+    \frametitle{What this paper is about}
+	\vspace*{0.8cm}
+
+Deep learning approach to infer Reynolds Averaged Navier-Stokes \newline solutions for airfoil shapes
+
+Fully convolutional U-Net architecture derivative in a fully \newline supervised training environment
+
+Classification of performance on inferring pressure and velocity fields
+
+Generalization ability to parameter changes in the training data
+
+Evaluation of different NN models regarding:
+\begin{PraesentationAufzaehlung}
+    \item network capacity
+    \item training data size
+\end{PraesentationAufzaehlung}
+
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Motivation}
+	\vspace*{0.8cm}
+	
+Why use deep learning for RANS systems:
+
+\begin{PraesentationAufzaehlung}
+    \item Similar highly non linear behaviour
+    \item PDE systems are complex and hard to calculate
+    \item RANS averages over the time component \newline $\implies$ 1 frame as output
+    \item Training data generatable
+    \item CNN's yield good image feature extraction
+    \item Success in computer vision
+    \item Success in physics simulation
+\end{PraesentationAufzaehlung}
+
 \end{frame}
 \clearpage
