@@ -3,8 +3,47 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Summary}
+	\vspace*{0.8cm}
+Investigate the accuracy of U-Net models for the inference of Reynolds-Averaged Navier-Stokes solutions
 
-TODO
-
+\begin{multicols}{2}
+    \textbf{Data Generation} $6 \times 128 \times 128$
+	\begin{PraesentationAufzaehlung}
+		\item Input (encodes Reynolds number): Bit Mask, x \& y velocity
+		\item Target (RANS solution): Pressure, x \& y velocity
+	\end{PraesentationAufzaehlung}
+	
+	\textbf{Pre-Processing}
+	\begin{PraesentationAufzaehlung}
+		\item Make data dimensionless, flatten space of solutions
+		\item Pressure offset removal, numerical precision
+	\end{PraesentationAufzaehlung}
+	
+	\textbf{Architecture}
+	\begin{PraesentationAufzaehlung}
+		\item U-Net -- Encoder - Bottleneck - Decoder structure
+		\item Activations highly depend on current task
+	\end{PraesentationAufzaehlung}
+	
+    \vfill\columnbreak
+    \textbf{Transfer} 
+	\begin{PraesentationAufzaehlung}
+		\item U-Net as time-series prediction NN for wave propagation
+		\item Input: last $n$ frames, Output: next $m$ frames, refeed
+	\end{PraesentationAufzaehlung}
+	
+	\textbf{Generalization}
+	\begin{PraesentationAufzaehlung}
+		\item NN performance on unseen data: Different angels of attack
+		\item mediocre performance on wider intervals (velocity)
+	\end{PraesentationAufzaehlung}
+	
+	\textbf{Discussion}
+	\begin{PraesentationAufzaehlung}
+		\item low error (improvable), speed up, even with low capacity  
+		\item prior knowledge and solvers needed, poor extrapolation
+	\end{PraesentationAufzaehlung}
+	
+\end{multicols}
 \end{frame}
 \clearpage

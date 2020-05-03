@@ -16,6 +16,31 @@ Taken from Deep Learning by Adam Gibson, Josh Patterson, O'Reily Media Inc., 201
 \begin{frame}
     \frametitle{Generalization}
     \vspace*{0.8cm}
+\begin{multicols}{2}
+    Splitted up training data:
+    \begin{PraesentationAufzaehlung}
+		\item Regular
+		\item Mixed ($50\%$ regular, $50\%$ sheared ($\pm 15$ degrees))
+	\end{PraesentationAufzaehlung}
+	
+	The plot shows training with a $30.9 \cdot 10^6$ parameter model
+	
+	The high capacity supports training with the mixed dataset, \newline
+	achieving a even lower error
+	
+	 
+	
+    \vfill\columnbreak
+	\includegraphics[width=\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/generaliz_plot.png}
+\end{multicols}
+\vspace*{-1.4cm}
+    Taken from \url{https://arxiv.org/pdf/1810.08217.pdf}
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- Evaluation}
+    \vspace*{0.8cm}
 To test generalization new datasets need to be created
 
 Generation of $1$ training sample:  $\approx 70$ seconds (using Google Colab)
