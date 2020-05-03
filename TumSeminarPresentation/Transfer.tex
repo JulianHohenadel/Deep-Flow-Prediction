@@ -3,8 +3,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Transfer}
+\vspace*{0.8cm}
+Motivation: Can the network architecture adapt to other PDE systems and how well will it perform?
 
-TODO
+Another use case for PDE systems like RANS is predicting wave propagation on shallow water
+
+Wave propagation, in this case, is governed by the Saint-Venant equations (related with Navier-Stokes equations)
+
+U-Net architecture changes:
+\begin{PraesentationAufzaehlung}
+    \item Input channels -- contain the last $n$ time steps
+    \item Output channels -- predict the next $m$ time steps
+    \item Output is refeeded as input to predict time series
+\end{PraesentationAufzaehlung}
 
 \end{frame}
 \clearpage
@@ -13,7 +24,7 @@ TODO
 %% Folie: Bigger Tub Stats    %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 RMSE with variance, validation loss and batch loss on Bigger Tub environment:\\[\baselineskip]
 
@@ -31,7 +42,7 @@ All plots in Transfer were made with \url{https://github.com/stathius/wave_propa
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 1\\[\baselineskip]
@@ -44,7 +55,7 @@ Intensity profile on scanline -- Frame 1\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 11\\[\baselineskip]
@@ -57,7 +68,7 @@ Intensity profile on scanline -- Frame 11\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 21\\[\baselineskip]
@@ -70,7 +81,7 @@ Intensity profile on scanline -- Frame 21\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 31\\[\baselineskip]
@@ -83,7 +94,7 @@ Intensity profile on scanline -- Frame 31\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 41\\[\baselineskip]
@@ -96,7 +107,7 @@ Intensity profile on scanline -- Frame 41\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 51\\[\baselineskip]
@@ -109,7 +120,7 @@ Intensity profile on scanline -- Frame 51\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 61\\[\baselineskip]
@@ -122,7 +133,7 @@ Intensity profile on scanline -- Frame 61\\[\baselineskip]
 %% Folie: Bigger Tub Frames  %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-    \frametitle{Transfer}
+    \frametitle{Transfer -- Evaluation}
 
 Wave propagation prediction \newline
 Intensity profile on scanline -- Frame 71\\[\baselineskip]
