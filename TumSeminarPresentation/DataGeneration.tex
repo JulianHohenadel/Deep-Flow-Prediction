@@ -7,16 +7,18 @@
 
 \vspace*{1cm}
 \begin{multicols}{2}
-    Airfoil shapes are provided by the UIUC database
+	\begin{PraesentationAufzaehlung}
+	
+	\item Airfoil shapes from UIUC database
 
-    Reynolds number: $[0.5, 5] \cdot 10^6$ (highly turbulent)
+    \item Reynolds number: $[0.5, 5] \cdot 10^6$ (highly turbulent)
 
-    Angle of attack: $[-22.5, 22.5]$
+    \item Angle of attack: $[-22.5, 22.5]$
 
-    Ground truth generated with OpenFOAM \newline (pressure, x velocity, y velocity)
+    \item Ground truth generated with OpenFOAM \newline (pressure, x velocity, y velocity)
     
-    Training data resolution: $3\times 128 \times 128$ \newline
-    (Inference region $128 \times 128 <$ full simulation domain)
+    \item Training data resolution: $3\times 128 \times 128$ \newline (Inference region $<$ full simulation domain)
+    \end{PraesentationAufzaehlung}
     \vfill\columnbreak
     \includegraphics[width=\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/uiuc_sample.png}
     
