@@ -41,26 +41,34 @@ Taken from Deep Learning by Adam Gibson, Josh Patterson, O'Reily Media Inc., 201
 \end{frame}
 \clearpage
 
+
+
 \begin{frame}
     \frametitle{Generalization -- Evaluation}
     \vspace*{0.8cm}
-To test generalization new datasets need to be created
+%To test generalization new datasets need to be created
 
-Generation of $1$ training sample:  $\approx 70$ seconds (using Google Colab)
+%Generation of $1$ training sample:  $\approx 70$ seconds (using Google Colab)
 
-Generation of $12.8k$ training samples: $> 10$ days -- not feasible 
+%Generation of $12.8k$ training samples: $> 10$ days -- not feasible 
 
-$\implies$ Generate only new test sets containing $90$ samples: $< 2$ hours -- feasible
+%$\implies$ Generate only new test sets containing $90$ samples: $< 2$ hours -- feasible
 
-Extrapolation with different angle of attack intervals, default: $[-22.5, 22.5]$:
+%Extrapolation with different angle of attack intervals, default: $[-22.5, 22.5]$:
 
-\begin{PraesentationAufzaehlung}
-    \item $[-45, 45]$
-    \item $[-90, 90]$
-    \item $[-67.5, -22.5]$
-    \item $[22.5, 67.5]$
-\end{PraesentationAufzaehlung}
+%\begin{PraesentationAufzaehlung}
+%    \item $[-45, 45]$
+%    \item $[-90, 90]$
+%    \item $[-67.5, -22.5]$
+%    \item $[22.5, 67.5]$
+%\end{PraesentationAufzaehlung}
 
+Generalization with different angels of attack: \\[\baselineskip]
+
+\includegraphics[width=.5\textwidth, height=.4\textheight]{./Ressourcen/Praesentation/Bilder/aoa.png}%
+\newline
+
+Taken from \url{http://www.aviationchief.com/angle-of-attack.html}
 
 \end{frame}
 \clearpage
@@ -134,5 +142,174 @@ Error increase of different angle of attack intervals wrt. ground truth $[-22.5 
     \vspace*{-5mm}
     \ref*{PraesentationDiagrammVertikalLegende}%
 \end{center}
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- $[-22.5, 22.5]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/std/0065_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/std/0084_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- $[-45, 45]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/45/0088_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/45/0089_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- $[-90, 90]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/90/0035_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/90/0067_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- $[-67.5, -22.5]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/left/0064_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/left/0074_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- $[22.5, 67.5]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/right/0088_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/right/0089_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+%TODO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Folie: Diagramm                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+    \frametitle{Generalization -- Evaluation}
+Error increase of different angle of attack interpolations wrt. ground truth $[-22.5 , 22.5]$
+\begin{center}
+	\vspace*{-1cm}
+    \begin{tikzpicture}
+        \begin{axis}[
+                ybar=10,
+                bar width=27.1,
+                axis line style={transparent},
+                every tick/.style={transparent},
+                enlarge x limits=0.145, % X-Achse skalieren
+                clip limits=true,
+                ymin=0,
+                ymax=30,
+                width=\textwidth,
+                height=.65\textheight,
+                symbolic x coords={-22.5 -- -10,10 -- 22.5},
+                xticklabels={-22.5 -- -10,10 -- 22.5},
+                xtick=data,
+                ytick={0,5,10,15,20,25},
+                every tick label/.append style={font=\fontsize{13}{14}\selectfont},
+                ymajorgrids,
+                legend image code/.code={\draw[draw=none] (0cm,-0.12cm) rectangle (0.29cm,0.17cm);}, % Legenden-Symbol  
+                legend columns=3,
+                reverse legend,
+                legend style={
+                    font={\usebeamerfont{footnote}},
+                    fill=none,
+                    draw=none,
+                    /tikz/every odd column/.append style={column sep=0.07cm}, % Abstand zwischen Legenden-Symbol
+                    /tikz/every even column/.append style={column sep=0.8cm} % Abstand zwischen den Legendeneinträgen
+                 },
+                legend to name=PraesentationDiagrammVertikalLegende
+            ]
+            
+            \addlegendentry{Combined}        
+            \addlegendentry{Pressure}    
+            \addlegendentry{Velocity}    
+            
+            %Combined
+            \addplot[color=TUMBlauDunkel, fill=TUMBlauDunkel] coordinates {
+                (-22.5 -- -10,11.38)
+                (10 -- 22.5,9.37)
+            };
+            
+            %Pressure
+            \addplot[color=TUMBlauHell, fill=TUMBlauHell] coordinates {
+                (-22.5 -- -10,4.64)
+                (10 -- 22.5,2.5)
+            };
+            
+            %Velocity
+            \addplot[color=TUMBlauMittel, fill=TUMBlauMittel] coordinates {
+                (-22.5 -- -10,12.66)
+                (10 -- 22.5,10.13)
+            };        
+        \end{axis}
+    \end{tikzpicture}
+
+    \vspace*{-5mm}
+    \ref*{PraesentationDiagrammVertikalLegende}%
+\end{center}
+\end{frame}
+\clearpage
+%TODO
+
+\begin{frame}
+    \frametitle{Generalization -- training: $[-10, 22.5]$, testing: $[-22.5, -10]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/interpolation/left_test/0085_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/interpolation/left_test/0086_bw.png}%
+\end{multicols}
+    
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Generalization -- training: $[-22.5, 10]$, testing: $[10, 22.5]$}
+    \vspace*{.1cm}
+\begin{multicols}{2}
+	
+	\includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/interpolation/right_test/0019_bw.png}%
+    \vfill\columnbreak
+    
+    \includegraphics[width=.9\columnwidth, height=.6\textheight]{./Ressourcen/Praesentation/Bilder/TransferEval/interpolation/right_test/0058_bw.png}%
+\end{multicols}
+    
 \end{frame}
 \clearpage
