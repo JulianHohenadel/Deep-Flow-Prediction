@@ -40,14 +40,44 @@ Data from the RANS solution
 
 Motivation: Flatten space of solutions, accelerate learning by simplifing the learning task for the NN
 
-Normalization of target channels by division with freestream magnitude 
+Bernoulli equation for incompressible (\textbf{laminar}) flow:
+
+$\frac{\textbf{v}^2}{2} + gz + \frac{\textbf{p}}{\rho} = constant$
+\begin{PraesentationAufzaehlung}
+\item $v$: velocity
+\item $g$: acceleration (constant)
+\item $z$: elevation (constant)
+\item $p$: pressure
+\item $\rho$: density (constant)
+\end{PraesentationAufzaehlung}
+
+$\implies v^2 \sim p$ -- e.g. double the speed quadruples the pressure
+
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Pre-processing -- Normalization}
+\vspace*{0.8cm}
+
+Normalization of target channels by division with freestream magnitude: \newline
 
 $\tilde{v_{o}} = \frac{v_{o}}{\|v_{i}\|}, \quad \tilde{p_{o}} = \frac{p_{o}}{\|v_{i}\|^{2}}$ -- important to remove quadratic scaling of pressure
 
-For a better understanding: \newline
-Pressure: $[p]_{SI} = 1 Pa = 1 \frac{kg}{m \cdot s^2}$ \newline
-Density: $[\rho]_{SI} = 1 \frac{kg}{m^3}$ -- constant in incompressible flow \newline
-Velocity: $[v]_{SI} = \frac{m}{s}$ \newline
+
+\end{frame}
+\clearpage
+
+\begin{frame}
+    \frametitle{Pre-processing -- Normalization}
+\vspace*{0.8cm}
+
+All units dissapear $\implies$ really dimensionless: \newline
+\begin{PraesentationAufzaehlung}
+\item Pressure: $[p]_{SI} = 1 Pa = 1 \frac{kg}{m \cdot s^2}$
+\item Density: $[\rho]_{SI} = 1 \frac{kg}{m^3}$ -- constant in incompressible flow
+\item Velocity: $[v]_{SI} = \frac{m}{s}$
+\end{PraesentationAufzaehlung}
 
 \end{frame}
 \clearpage
@@ -57,15 +87,14 @@ Velocity: $[v]_{SI} = \frac{m}{s}$ \newline
 \vspace*{0.8cm}
 Motivation: eliminate ill-posed learning goal \& improve numerical precision
 
-Spatially move pressure distribution into the origin -- RANS typically only needs $\nabla_{p}$ for computation
-
-$\hat{p_o} = \tilde{p_o} - p_{mean}$    
-
-Clamp both input and target channels into $[-1, 1]$ range by diving by the maximum absolute value
-
+\begin{PraesentationAufzaehlung}
+\item RANS typically only needs $\nabla_{p}$ for computation
+\item Spatially move pressure distribution into the origin
+\item $\hat{p_o} = \tilde{p_o} - p_{mean}$ 
+\item Clamp both input and target channels into $[-1, 1]$ range (divide by max abs. value)
+\end{PraesentationAufzaehlung}
 \end{frame}
 \clearpage
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Folie: Diagramm                                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
