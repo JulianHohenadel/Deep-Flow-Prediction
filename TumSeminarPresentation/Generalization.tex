@@ -13,9 +13,6 @@ Taken from Deep Learning by Adam Gibson, Josh Patterson, O'Reily Media Inc., 201
 \end{frame}
 \clearpage
 
-% TODO AoA Link: http://www.aviationchief.com/angle-of-attack.html
-% Add Pictures
-
 \begin{frame}
     \frametitle{Generalization}
     \vspace*{0.8cm}
@@ -46,22 +43,6 @@ Taken from Deep Learning by Adam Gibson, Josh Patterson, O'Reily Media Inc., 201
 \begin{frame}
     \frametitle{Generalization -- Evaluation}
     \vspace*{0.8cm}
-%To test generalization new datasets need to be created
-
-%Generation of $1$ training sample:  $\approx 70$ seconds (using Google Colab)
-
-%Generation of $12.8k$ training samples: $> 10$ days -- not feasible 
-
-%$\implies$ Generate only new test sets containing $90$ samples: $< 2$ hours -- feasible
-
-%Extrapolation with different angle of attack intervals, default: $[-22.5, 22.5]$:
-
-%\begin{PraesentationAufzaehlung}
-%    \item $[-45, 45]$
-%    \item $[-90, 90]$
-%    \item $[-67.5, -22.5]$
-%    \item $[22.5, 67.5]$
-%\end{PraesentationAufzaehlung}
 
 Generalization with different angels of attack: \\[\baselineskip]
 
@@ -78,7 +59,7 @@ Taken from \url{http://www.aviationchief.com/angle-of-attack.html}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Generalization -- Evaluation}
-Error increase of different angle of attack intervals wrt. ground truth $[-22.5 , 22.5]$
+Error increase of different angle of attack intervals as test set wrt. ground truth $[-22.5 , 22.5]$
 \begin{center}
 	\vspace*{-1cm}
     \begin{tikzpicture}
@@ -215,13 +196,12 @@ Error increase of different angle of attack intervals wrt. ground truth $[-22.5 
 \end{frame}
 \clearpage
 
-%TODO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Folie: Diagramm                                 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
     \frametitle{Generalization -- Evaluation}
-Error increase of different angle of attack interpolations wrt. ground truth $[-22.5 , 22.5]$
+Error increase of different angle of attack interpolations (test set) wrt. ground truth $[-22.5 , 22.5]$
 \begin{center}
 	\vspace*{-1cm}
     \begin{tikzpicture}
