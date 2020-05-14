@@ -10,6 +10,9 @@
 sample-acmtog.pdf:
 
 clean:
-	rm -f comment.cut sample-acmtog.{aux,bbl,blg,log,out,pdf}
-	rm -f *-converted-to.pdf
-
+	@echo "Cleaning..."
+	mv sample-acmtog.tex sample_acmtog.tex
+	rm -f comment.cut 
+	rm -f sample-acmtog.*
+	mv sample_acmtog.tex sample-acmtog.tex
+	@echo "Done."
