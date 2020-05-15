@@ -86,19 +86,8 @@ that this generic setup as \cite{Thuerey20} claims is applicable to other partia
 (PDE) boundary value problems the network architecture is used to train on inferring the Saint-Venant 
 equations, which \cite{Fotiadis2020} uses for the modeling of surface wave propagation.
 
-% Figure
-\begin{figure}[h]
-  \includegraphics[width=.2\textwidth, height=.2\textheight]{figures/sampleTarget}
-  %\vspace*{10mm}
-  \caption{RANS infered pressure and velocity distributions around an airfoil.}
-  \label{fig:zero}
-\end{figure}
-
 \section{Background}
 Reynolds-averaged Navier-Stokes (RANS) equations are used for the modeling of turbulent incompressible flows \cite{Alfonsi}. \\
-Due to inferring complexity as well as it's chaotic behaviour the Navier-Stokes equations are simplified by the RANS equations.
-In the context of the paper RANS is used to infer 2D pressure and velocity distributions (see Figure ~\ref{fig:zero}) around airfoil shapes to predict
-lift and drag coefficients.
 The Navier-Stokes equation is a nonlinear partial differential equation which can be seen as Newtons's 2nd law of motion \cite{BISTAFA2018}:
 % Numbered Equation
 \begin{equation}
@@ -108,9 +97,8 @@ The Navier-Stokes equation is a nonlinear partial differential equation which ca
 Where $u$ is the velocity vector, $g$ is the acceleration vector due to a body force, $p$ is pressure, 
 $\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} rewrites the left side 
 of the equation as the particles acceleration and the right side as the external forces that affect 
-the particle per unit of mass which yields Newtons's 2nd law of motion.
-The idea behind RANS is Reynolds decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}.
-RANS averages over the time component, thus returning a single frame as infered solution.
+the particle per unit of mass which yields Newtons's 2nd law of motion. The idea behind RANS is Reynolds 
+decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}. 
 The Reynolds number $Re$ is a dimensionless constant which is needed for the calculation of turbulence 
 models. Depending on the magnitude of the Reynolds number the flow ranges from laminar to turbulent 
 \cite{lissaman1983}. The angle of attack on an airfoil as well as the Reynolds number are important 
@@ -132,7 +120,7 @@ airfoil to speed up training while keeping the most relevant information.
 A test set is generated separately with unseen airfoil shapes.
 
 % Figure
-\begin{figure}[h]
+\begin{figure}[H]
   \includegraphics[width=.4\textwidth]{figures/uiuc_sample}
   \vspace*{-10mm}
   \caption{A sample airfoil shape in 2D.}
@@ -145,20 +133,11 @@ mask representing the position and shape of the airfoil, $x$ and $y$ velocity. I
 all elements contain $0$ in the velocity fields. The velocity maps are initialized with differently 
 scaled freestream velocity vectors which have the corresponding Reynolds number for the sample encoded 
 in them with respect to the magnitude of the elements. \\For the inferred solution of the neural network 
-the shape stays the same as the input. Solutions are obtained from OpenFOAM as ground 
-truth with channels split into pressure, $x$ and $y$ velocity.
-
-\begin{equation}
-\label{eqn:00}
-	\frac{\textbf{v}^2}{2} + gz + \frac{\textbf{p}}{\rho} = constant
-\end{equation}
-
-The Bernoulli equation for incompressible laminar flow despite not beeing directly applicable for turbulent flow
-motivates the first normalization step proposed in the paper. It shows a quadratic relation between velocity and
-pressure. To make the data dimensionless the ground truth data is divided by the magnitude of the freestream 
-velocity (default: L2 vector norm). The pressure channel is divided with the vector norm squared to remove the 
-quadratic scaling as suggested by the Bernoulli equation.
-In the context of physical units: In an incompressible model the density is constant so to make the 
+the shape stays the same as the input. \cite{Thuerey20} use the solution obtained from OpenFOAM as ground 
+truth with channels split into pressure, $x$ and $y$ velocity. The first normalization step is to divide 
+the  ground truth data with the magnitude of the freestream velocity (default: L2 vector norm). The 
+pressure channel is divided with the vector norm squared to make the data dimensionless. This originates 
+in the physical unit of pressure: In an incompressible model the density is constant so to make the 
 pressure dimensionless it needs to be divided with the squared velocity. \\
 
 % Table
@@ -183,33 +162,53 @@ pressure dimensionless it needs to be divided with the squared velocity. \\
 Trained on \cite{Thuerey20} U-Net implementation with $1.9 \cdot 10^{6}$ weights. \\
 Seeds used for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
 \end{table}%
-
 Additionally, to norm based normalization the pressure channel is shifted into the origin 
-by subtraction the pressure mean for each sample respectively. This is doable because the 
-Navier-Stokes equations only use the pressure gradient $\nabla_p$ which allows for absolute pressure
-values to be changed. By doing this the network does not have to waste resources on 
-compensating for an off centered pressure map. Lastly \cite{Thuerey20} clamps each channel 
-into an $[-1, 1]$ interval to ensure a maximum of numerical precision.
+by subtraction the pressure mean for each sample respectively. By doing this the network 
+does not have to waste resources on compensating for an off centered pressure map. Lastly 
+\cite{Thuerey20} clamps each channel into an $[-1, 1]$ interval to ensure a maximum of numerical precision.
 
 
 Table~\ref{tab:one} shows how different vector norms which are only used for normalization 
 of the target data in the pre-processing step change the averaged error of neural networks 
-which are all trained under the same conditions and capacity. 
-$L1 \geq L2 \geq L_{inf}$ holds for every error channel. The other norms are quasi norms because they violate the required convexity 
+which are all trained under the same conditions and capacity. Figure~\ref{fig:three} in the 
+Appendix visualizes the relations of the p-norms on the unit circle: $L1 \geq L2 \geq L_{inf}$\\
+Interestingly the same inequality relation holds for every error channel shown in Table~\ref{tab:one} 
+as well. The other norms are quasi norms because they violate the required convexity 
 but follow the same definition for a vector $x$:
 
 % Numbered Equation
 \begin{equation}
-\label{eqn:02}
+\label{eqn:01}
 ||x||_p := {\left( \sum_{i=0}^{n} |x_i|^p \right)}^{\frac{1}{p}}
 \end{equation}
 
 Surprisingly L$0.25$ and L$0.75$ normalization hold exactly the same results, although the absolute 
 norm values on the same sample differ vastly. They also fail to infer target pressure values by 
 around $2x$ when compared with the other norms. \\
-Comparing the generated feature maps in the convolutional layers for the different normalizations
-does not yield any precise information. The weight difference for each feature map does not seem to
-follow any pattern besides increasing up to the bottleneck and then decreasing along the decoder. \\
+To explain the error margin between L$1$ and L$2$ normalization this report takes a closer look 
+at the trained weights in the network. The filter used in the convolutional layers should still 
+capture the same patterns to identify regions of interest, independent of the used norm. 
+Figure~\ref{fig:seven} shows the  difference in weights created in the first layer. 
+
+% diff_layer_1_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_1_conv.png}
+  \caption{Convolution weight (first layer) difference: L1 and L2 normalization \\ Filter kernel size: 4x4.}
+  \label{fig:seven}
+\end{figure}
+
+The diversity in the first layer is shown by the different color shades. Descending deeper into 
+the U-Net convolutional filter get far more heterogen (see Figure~\ref{fig:four} in the Appendix). 
+After the bottleneck this effect progressively fades out. The weights in the last layer are 
+besides a few pixels e.g.\ single weights mostly identical. This can be seen in Figure~\ref{fig:eight}.
+
+% diff_layer_14_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_layer_14_conv.png}
+  \caption{Convolution weight (last layer) difference: L1 and L2 normalization \\ Filter kernel size: 4x4.}
+  \label{fig:eight}
+\end{figure}
+
 Batch normalization is used to reduce internal covariance shift \cite{ioffe2015}. 
 $\gamma$ and $\beta$ are two learnable parameters to influence variance and mean of the 
 input data to improve training. Because \cite{Thuerey20} works with shuffled datasets 
@@ -221,7 +220,8 @@ $2 \cdot 10^{6}$ parameter. With bigger filter kernel sizes (e.g. VGG nets) in t
 layers the detected structures would be more comparable, while a maximal size of 4x4 pixels is limiting a visual comparison.
 
 \subsection{Neural Network Architecture}
-\cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015}. 
+\cite{Thuerey20} use a modified version of the U-Net architecture proposed by \cite{ronneberger2015} 
+(Figure~\ref{fig:two}) which was first successfully used for biomedical image segmentation.
 The U-Net architecture consists of two parts. The left side of the ``U`` functions as an encoder. 
 It captures the context of the image. While width and height of the image get smaller the depth 
 of the channels increases. The right side acts as a decoder. It upsamples the feature maps to 
@@ -229,32 +229,57 @@ recover spatial locations. The behavior of the image size and depth is contrary 
 part. Every block is implemented similarly: activation function (leaky ReLu in encoder, ReLu in 
 decoder), convolution layer, batch normalization and finally dropout for regularization \cite{Thuerey20}. 
 Without the help of skip connections information captured in the initial layers of the U-Net 
-which is needed for reconstruction in the decoding part may get lost.\\ 
-Activations control the flow of the gradients through the network which is essential for proper learning.
-Rectified Linear Units (ReLu) and variants of ReLu are nowadays the standard choice as an activation function. 
-ReLu does not saturate and yield large and consistent gradients. Both are important for fast convergence. 
-The problem with ReLu is that it can ``die`` (e.g. the output is 0) which lowers the capacity of the 
-network by deactivating neurons.
-Leaky ReLu does have the same benefits as regular ReLu but does not suffer from the ``dying out`` problem. 
-For this reason the same network architecture is trained with the activation setup \cite{Thuerey20} 
-used as well as all activations set to vanilla ReLu and PReLu respectively. 
-PReLu makes use of a learnable parameter which sets the negative slope through 
-backpropagation while leaky ReLu has a fixed hard coded parameter for that reason ($0.2$ is used 
-by \cite{Thuerey20}). 
-Regular ReLu for both encoder and decoder is not a beneficial choice as information which is lost to 
-the ``dead`` ReLu in the encoder can only be partially (with skip connections) or not at all be recovered 
-and forwarded to the decoder. This shows in higher error rates especially for the pressure distribution.
+which is needed for reconstruction in the decoding part may get lost. 
+This can be avoided by concatenating the horizontal aligned blocks.
 
 \begin{table}[h]
-\caption{Activation function comparision wrt. error after 160k iterations (in \%).}
+\caption{Activation function comparision wrt. error \\ after 80k iterations (in \%).}
 \label{tab:two}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
   \toprule
   Norm   & pressure   &	velocity    & combined \\
-  Std	 & 14.76	  & 2.29		& 2.78   \\
-  \bf PReLu	 & \bf 14.69	  & \bf 2.21		& \bf 2.67	   \\
-  ReLu   & 39.39	  & 2.97		& 3.17	  \\
+  \bf Std	 & \bf 14.76	  & \bf 2.291		& \bf 2.780	   \\
+  PReLu	 & 18.17	  & 2.453		& 2.871	   \\
+  ReLu	 & 34.13	  & 3.369		& 3.547	   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\bigskip\centering
+\footnotesize The activation functions proposed by \cite{Thuerey20} achieve \\ 
+the best error rates (lower is better). \\
+Seeds used for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
+
+\end{table}%
+
+This report compares the use of different activation functions as they not only act as a nonlinearity. 
+They should also control the flow of the gradients through the network which is essential for proper learning.\\
+Rectified Linear Units (ReLu) and variants of ReLu are nowadays the standard choice as an activation function. 
+ReLu does not saturate and yield large and consistent gradients. Both are important for fast convergence. 
+The problem with ReLu is that it can ``die`` (e.g. the output is 0) which lowers the capacity of the 
+network by deactivating neurons as their output is multiplied with 0.\\
+Leaky ReLu does have the same benefits as regular ReLu but does not suffer from the ``dying out`` problem. 
+For this reason the same network architecture is trained with the activation setup \cite{Thuerey20} 
+used as well as all activations set to vanilla ReLu and PReLu respectively which can be seen in 
+Table~\ref{tab:two}. PReLu makes use of a learnable parameter which sets the negative slope through 
+backpropagation while leaky ReLu has a fixed hard coded parameter for that reason ($0.2$ is used 
+by \cite{Thuerey20}). Table~\ref{tab:two} shows the results with the activations used by \cite{Thuerey20} 
+showing the best results with regard to accuracy. \\
+Regular ReLu for both encoder and decoder is not a beneficial choice as information which is lost to 
+the ``dead`` ReLu in the encoder can only be partially (with skip connections) or not at all be recovered 
+and forwarded to the decoder. This shows in higher error rates especially for the pressure map. \\
+PReLu is close to the performance of the standard setup but as the values suggest still needs more 
+training time. PReLu also adds more weights to the network thus increasing its capacity. 
+
+\begin{table}[h]
+\caption{Activation function comparision wrt. error \\ after 160k iterations (in \%).}
+\label{tab:three}
+\begin{center}
+\begin{tabular}{l|l|l|l|l}
+  \toprule
+  Norm   & pressure   &	velocity    & combined \\
+  Std	 & 14.76	  & 2.296		&  2.787   \\
+  \bf PReLu	 & \bf 14.69	  & \bf 2.216		& \bf 2.676	   \\
   \bottomrule
 \end{tabular}
 \end{center}
@@ -264,42 +289,35 @@ the best error rates (lower is better). \\
 Seed used for training: $0$
 \end{table}%
 
-Table~\ref{tab:two} shows that the standard setup could not achieve a better result while PReLu 
-is able to slightly reduce the error by $0.1\%$. These results were obtained with a single seed and therefore 
+Table~\ref{tab:three} shows that the standard setup could not achieve a better result while PReLu 
+is able to reduce its error by $0.2\%$. These results were obtained with a single seed and therefore 
 may not be that conclusive but rather indicate a trend. PReLu activations on the encoder part have 
 a mean parameter value close to the $0.2$ proposed by \cite{Thuerey20}. PReLu is also able to train 
 one parameter for each input channel adding even more flexibility with the cost of additional weights. 
-
-% Figure
-\begin{figure}[h]
-  \includegraphics[width=.4\textwidth]{figures/val_loss}
-  %\vspace*{-10mm}
-	\caption{Validation loss comparison of Std (blue), PReLu (red), ReLu (green). \\
-	Seed used for training: $0$}
-  \label{fig:val}
-\end{figure}
-
-Figure ~\ref{fig:val} gives a good visual summary of the results.
-The PReLu and standard setup both converge which explains their small error difference while the model
-trained with only ReLu activations even starts to diverge.
+Despite \cite{Thuerey20} using a learning rate decay (reduction to $10\%$ of the initial value after 
+$50\%$ of the training) which PyTorch states is not well suited to combine with PReLu the 
+activation function does not seem to be affected by it.
 
 \subsection{Supervised Training}
 The training setup used by \cite{Thuerey20} consists of an $L_1$ loss, learning rate decay and the 
 use of the Adam optimizer \cite{kingma2014adam} with default PyTorch settings except $\beta_1$ 
-(set to $0.5$). Lowering $\beta_1$ slows down acceleration but can be 
-useful if you overshoot good local minima. 
-While the $30.9m$ model suffers from its huge capacity in form of overfitting 
+(set to $0.5$). Adam makes use of first and second momentum $\beta_1$ and $\beta_2$ respectively. 
+The main idea is to accelerate into directions where the gradient accumulates ($\beta_1$) and also 
+dampen the gradients' variance ($\beta_2$). Lowering  $\beta_1$ slows down acceleration but can be 
+useful if you overshoot good local minima. \cite{Thuerey20} also found that generating more 
+training data is preferred over using adversarial training.\\
+\cite{Thuerey20} evaluated their accuracy with multiple U-Nets with the same architecture but 
+different capacity ranging from $122k$ up to $30.9m$ over training data ranging from $100$ up 
+to $12.8k$ samples. While the $30.9m$ model suffers from its huge capacity in form of overfitting 
 small data sets it achieves a combined relative error of $2.6\%$ using the $12.8k$ sample training 
 dataset. The $1.9m$ and $7.7m$ model also show close results wrt. the highest capacity model.\\
-\cite{Thuerey20} explore generalization with an additional dataset in which the airfoil shapes 
-were sheared by $\pm15\%$. This reduced the error to $2.32\%$ when training 
-with a $51k$ mixed dataset ($30.9m$ model). 
+\cite{Thuerey20} explored generalization with an additional dataset in which the airfoil shapes 
+were sheared by $\pm15\%$. The datasets are used pure or mixed with equal contribution.
+The $30.9m$ model is able to use its capacity to bring the error down to $2.32\%$ when training 
+with a $51k$ mixed dataset. Compared with the regular dataset containing the same amount of 
+samples the added complexity (i.e. regularization) benefits the training.
 \cite{Thuerey20} achieves a speed up of ca. $1000x$ when using an NVidia GTX 1080 
 GPU for inference of the neural networks compared to OpenFOAM.
-
-\section{Generalization}
-%TODO
-
 
 \section{Transfer}
 To show another use case for the models created by \cite{Thuerey20} they will be used to infer 
@@ -312,21 +330,27 @@ used. To be consistent with \cite{Fotiadis2020} U-Net architecture and to make t
 $n=5$ and $m=20$ without dropout is used in this setup. Due to Google Colab hardware and runtime 
 restrictions both models were only trained for 50 epochs and both neural nets have a capacity 
 between $[7.7 \cdot 10^6, 7.8 \cdot 10^6]$.\\
-omparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost similar up to 35 
+The main difference to \cite{Thuerey20} architecture is that \cite{Fotiadis2020} U-Net is more 
+shallow with only 3 convolution blocks in the encoder and decoder respectively as well as the 
+bottleneck resolution being 16x16. There is also no batch normalization layer after every 
+convolution layer. Downsampling is done with max pooling instead of strided 
+convolutions and all activation functions use ReLu. \\
+Comparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost similar up to 35 
 time-steps ahead and after 80 time-steps the gap is still relatively small. 
 \cite{Fotiadis2020} achieve with their U-Net a speed-up of 241x compared with numerical 
-simulations. 
+simulations. This again shows the enormous potential of CNN's when compared 
+with classical solvers for CFD and PDE.
 
 % Transfer 1
-\begin{figure}[h]
-  \includegraphics[width=.35\textwidth]{figures/transfer/DFP_Test_RMSE_Quality_start_15}
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/transfer/DFP_Test_RMSE_Quality_start_15}
   \caption{RMSE error on test set with \cite{Thuerey20} architecture.}
   \label{fig:T1}
 \end{figure}
 
 % Transfer 2
-\begin{figure}[h]
-  \includegraphics[width=.35\textwidth]{figures/transfer/Transfer_Test_RMSE_Quality_start_15}
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/transfer/Transfer_Test_RMSE_Quality_start_15}
   \caption{RMSE error on test set with \cite{Fotiadis2020} architecture.}
   \label{fig:T2}
 \end{figure}
@@ -360,5 +384,35 @@ future work especially because convolutional neural networks are able to outperf
 % Bibliography
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{sample-bibliography}
+
+% Appendix
+\newpage
+%\clearpage
+\section{Appendix}
+
+% U-Net
+\begin{figure}[H]
+  \includegraphics[width=.4\textwidth]{figures/U-Net_classic}
+  \caption{U-Net architecture, taken from \cite{ronneberger2015}.}
+  \label{fig:two}
+\end{figure}
+
+% Norms
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/norms}
+  \caption{Vector norms visualized on unit circle, taken from \cite{norms_pic}.}
+  \label{fig:three}
+\end{figure}
+
+%%%%%%%%
+
+% diff_bottleneck_conv
+\begin{figure}[H]
+  \includegraphics[width=.3\textwidth]{figures/weights_visualized/diff_bottleneck_conv.png}
+  \caption{Convolution weight (bottleneck) difference between L1 and L2 normalization, first 100 weights. Filter kernel size: 1x1.}
+  \label{fig:four}
+\end{figure}
+
+% Exact description of U-Net
 
 \end{document}
