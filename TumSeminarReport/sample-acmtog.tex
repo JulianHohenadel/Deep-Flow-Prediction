@@ -160,7 +160,6 @@ velocity (default: L2 vector norm). The pressure channel is divided with the vec
 quadratic scaling as suggested by the Bernoulli equation.
 In the context of physical units: In an incompressible model the density is constant so to make the 
 pressure dimensionless it needs to be divided with the squared velocity. \\
-
 % Table
 \begin{table}
 \caption{Norm comparision wrt. error, L2 default (in \%).}
@@ -183,7 +182,6 @@ pressure dimensionless it needs to be divided with the squared velocity. \\
 Trained on \cite{Thuerey20} U-Net implementation with $1.9 \cdot 10^{6}$ weights. \\
 Seeds used for training: $0$, $2^{10}$, $2^{20}$, $2^{30}$
 \end{table}%
-
 Additionally, to norm based normalization the pressure channel is shifted into the origin 
 by subtraction the pressure mean for each sample respectively. This is doable because the 
 Navier-Stokes equations only use the pressure gradient $\nabla_p$ which allows for absolute pressure
@@ -328,6 +326,16 @@ simulations.
 \end{figure}
 
 \section{Generalization}
+Generalization performance is measured with an extrapolation and interpolation approach shown 
+in Table ~\ref{tab:gen1} and ~\ref{tab:gen2} respectively. \\
+The ground truth for the training data works with an angle of attack interval of $[-22.5, 22.5]$ degrees
+for training as well as testing. Increasing the interval yields a lower relative error increase when compared
+with an interval shift. While the ground truth interval is still a subset in the increased interval the 
+shifted interval does not overlap which explains the drastic error increase.\\
+The error increase in the interpolation setting is caused by the neural network 
+not being able to infer pressure and velocity distributions on the opposite part of the airfoil wrt.
+the angle of attack.
+
 
 % Table
 \begin{table}
@@ -365,8 +373,6 @@ simulations.
 \footnotesize Interpolation of AoA intervals, ground truth interval splitted \\
 	into train and test (shown) intervals, no intersections.  
 \end{table}%
-
-
 
 \section{Discussion}
 \cite{Fotiadis2020} show that U-Nets can outperform LSTM's in accuracy as well as in speed 
