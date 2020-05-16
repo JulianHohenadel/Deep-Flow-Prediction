@@ -251,7 +251,7 @@ and forwarded to the decoder. This shows in higher error rates especially for th
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
   \toprule
-  Norm   & pressure   &	velocity    & combined \\
+  Activation   & pressure   &	velocity    & combined \\
   Std	 & 14.76	  & 2.29		& 2.78   \\
   \bf PReLu	 & \bf 14.69	  & \bf 2.21		& \bf 2.67	   \\
   ReLu   & 39.39	  & 2.97		& 3.17	  \\
@@ -297,10 +297,6 @@ with a $51k$ mixed dataset ($30.9m$ model).
 \cite{Thuerey20} achieves a speed up of ca. $1000x$ when using an NVidia GTX 1080 
 GPU for inference of the neural networks compared to OpenFOAM.
 
-\section{Generalization}
-%TODO
-
-
 \section{Transfer}
 To show another use case for the models created by \cite{Thuerey20} they will be used to infer 
 the propagation of surface waves governed by the Saint-Venant equations as they are related with 
@@ -330,6 +326,46 @@ simulations.
   \caption{RMSE error on test set with \cite{Fotiadis2020} architecture.}
   \label{fig:T2}
 \end{figure}
+
+\section{Generalization}
+
+% Table
+\begin{table}
+	\caption{Error increase for different angle of attack intervals (test set) in \%.}
+\label{tab:gen1}
+\begin{center}
+\begin{tabular}{l|l|l|l|l}
+  \toprule
+  Interval   		& pressure   &	velocity    & combined \\
+  $[-45, 45]$	 	& 3.66	  & 5.14		& 6.07	   \\
+  $[-90, 90]$	 	& 5.73	  & 19.20		& 18.23	   \\
+  $[-67.5, -22.5]$ 	& 6.00	  & 13.84		& 15.11	   \\
+  $[22.5, 67.5]$  	& 10.7	  & 23.25		& 22.99	   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\bigskip\centering
+	\footnotesize Extrapolation of AoA intervals, ground truth: $[-22.5, 22.5]$ \\
+\end{table}%
+
+% Table
+\begin{table}
+\caption{Error increase for different angle of attack intervals in \%.}
+\label{tab:gen2}
+\begin{center}
+\begin{tabular}{l|l|l|l|l}
+  \toprule
+  Interval   	& pressure   &	velocity    & combined \\
+  $[-22.5, -10]$ 	& 4.64	  & 12.66		& 11.38	   \\
+  $[10, 22.5]$	 	& 2.5	  & 10.13		& 9.37	   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\bigskip\centering
+\footnotesize Interpolation of AoA intervals, ground truth interval splitted \\
+	into train and test (shown) intervals, no intersections.  
+\end{table}%
+
 
 
 \section{Discussion}
