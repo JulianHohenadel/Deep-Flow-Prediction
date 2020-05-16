@@ -380,10 +380,12 @@ up with a fraction of capacity (in time-series problems). Convolutions paired wi
 decoder structure seem to catch regions of interest fast and reliable. Looking at the validation 
 and mean error plots shown in \cite{Thuerey20} the accuracy does not suffer too much from models 
 with a lot less capacity. Their natural regularization effect should make improvement possible 
-even with a small mixed dataset which would again increase inference speed. It is not clear 
-why problem specific solver should infer airfoil flows if the accuracy of neural networks 
-can be improved even more. \cite{Thuerey20} show that the data pre-processing (i.e. reducing 
+even with a small mixed dataset which would again increase inference speed. 
+\cite{Thuerey20} show that the data pre-processing (i.e. reducing 
 the space of solutions) is almost more important than the actual fine-tuning of the models. 
+The architecture shows an underwhelming performance regarding generalization wrt. changes in the
+angle of attack interval. The proposed model is not able to guarantee correctness. This motivates
+further research in network architecture engineering and generalization behaviour (e.g. other shapes).
 This research is important because it questions the use of solvers and shows the rapid progress 
 wrt. accuracy of convolutional neural networks in CFD problems.
 
@@ -396,7 +398,8 @@ function is compared to classic ReLu and leaky ReLu. While hard coded activation
 good training results after hyper parameter tuning it can be worth testing activations that train 
 themselves through backpropagation. For the cost of some additional weights given enough iterations 
 it may be worth considering. The U-Net being applicable to other PDE problems leaves a lot of possible 
-future work especially because convolutional neural networks are able to outperform LSTM's in time-series predictions.\\
+future work especially because convolutional neural networks are able to outperform LSTM's in time-series predictions
+but still suffer from their generalization capabilities. 
 
 \newpage
 % Bibliography
