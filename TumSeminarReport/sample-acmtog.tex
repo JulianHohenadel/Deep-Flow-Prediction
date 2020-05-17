@@ -39,8 +39,8 @@ a mean error relative to pressure and velocity channels of less than 3\% on a te
 samples. \cite{Thuerey20} states that due to this generic approach other PDE boundary value problems 
 on Cartesian grids can also be tackled with this setup. In this report different adaptations of the 
 network architecture are compared to each other with different data normalization in form of vector 
-norms. Lastly the architecture is used to predict wave propagation on shallow water governed by the 
-Saint-Venant equations.
+norms. The architecture is also used to predict wave propagation on shallow water governed by the 
+Saint-Venant equations. Lastly the generalization behavior is examined.
 \end{abstract}
 
 %
@@ -90,13 +90,13 @@ equations, which \cite{Fotiadis2020} uses for the modeling of surface wave propa
 \begin{figure}[h]
   \includegraphics[width=.2\textwidth, height=.2\textheight]{figures/sampleTarget}
   %\vspace*{10mm}
-  \caption{RANS infered pressure and velocity distributions around an airfoil.}
+  \caption{RANS inferred pressure and velocity distributions around an airfoil.}
   \label{fig:zero}
 \end{figure}
 
 \section{Background}
 Reynolds-averaged Navier-Stokes (RANS) equations are used for the modeling of turbulent incompressible flows \cite{Alfonsi}. \\
-Due to inferring complexity as well as it's chaotic behaviour the Navier-Stokes equations are simplified by the RANS equations.
+Due to inferring complexity as well as its chaotic behaviour the Navier-Stokes equations are simplified by the RANS equations.
 In the context of the paper RANS is used to infer 2D pressure and velocity distributions (see Figure ~\ref{fig:zero}) around airfoil shapes to predict
 lift and drag coefficients.
 The Navier-Stokes equation is a nonlinear partial differential equation which can be seen as Newtons's 2nd law of motion \cite{BISTAFA2018}:
@@ -110,7 +110,7 @@ $\nu$ is the kinematic viscosity and $\rho$ is the density. \cite{BISTAFA2018} r
 of the equation as the particles acceleration and the right side as the external forces that affect 
 the particle per unit of mass which yields Newtons's 2nd law of motion.
 The idea behind RANS is Reynolds decomposition which splits dependent model variables into a mean and fluctuating part \cite{Alfonsi}.
-RANS averages over the time component, thus returning a single frame as infered solution.
+RANS averages over the time component, thus returning a single frame as inferred solution.
 The Reynolds number $Re$ is a dimensionless constant which is needed for the calculation of turbulence 
 models. Depending on the magnitude of the Reynolds number the flow ranges from laminar to turbulent 
 \cite{lissaman1983}. The angle of attack on an airfoil as well as the Reynolds number are important 
@@ -153,7 +153,7 @@ truth with channels split into pressure, $x$ and $y$ velocity.
 	\frac{\textbf{v}^2}{2} + gz + \frac{\textbf{p}}{\rho} = constant
 \end{equation}
 
-The Bernoulli equation for incompressible laminar flow despite not beeing directly applicable for turbulent flow
+The Bernoulli equation for incompressible laminar flow despite not being directly applicable for turbulent flow
 motivates the first normalization step proposed in the paper. It shows a quadratic relation between velocity and
 pressure. To make the data dimensionless the ground truth data is divided by the magnitude of the freestream 
 velocity (default: L2 vector norm). The pressure channel is divided with the vector norm squared to remove the 
@@ -162,7 +162,7 @@ In the context of physical units: In an incompressible model the density is cons
 pressure dimensionless it needs to be divided with the squared velocity. \\
 % Table
 \begin{table}
-\caption{Norm comparision wrt. error, L2 default (in \%).}
+\caption{Norm comparison wrt. error, L2 default (in \%).}
 \label{tab:one}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
@@ -244,7 +244,7 @@ the ``dead`` ReLu in the encoder can only be partially (with skip connections) o
 and forwarded to the decoder. This shows in higher error rates especially for the pressure distribution.
 
 \begin{table}[h]
-\caption{Activation function comparision wrt. error after 160k iterations (in \%).}
+\caption{Activation function comparison wrt. error after 160k iterations (in \%).}
 \label{tab:two}
 \begin{center}
 \begin{tabular}{l|l|l|l|l}
@@ -286,7 +286,7 @@ The training setup used by \cite{Thuerey20} consists of an $L_1$ loss, learning 
 use of the Adam optimizer \cite{kingma2014adam} with default PyTorch settings except $\beta_1$ 
 (set to $0.5$). Lowering $\beta_1$ slows down acceleration but can be 
 useful if you overshoot good local minima. 
-While the $30.9m$ model suffers from its huge capacity in form of overfitting 
+While the $30.9m$ model suffers from its huge capacity in form of overfitting, 
 small data sets it achieves a combined relative error of $2.6\%$ using the $12.8k$ sample training 
 dataset. The $1.9m$ and $7.7m$ model also show close results wrt. the highest capacity model.\\
 \cite{Thuerey20} explore generalization with an additional dataset in which the airfoil shapes 
@@ -306,7 +306,7 @@ used. To be consistent with \cite{Fotiadis2020} U-Net architecture and to make t
 $n=5$ and $m=20$ without dropout is used in this setup. Due to Google Colab hardware and runtime 
 restrictions both models were only trained for 50 epochs and both neural nets have a capacity 
 between $[7.7 \cdot 10^6, 7.8 \cdot 10^6]$.\\
-omparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost similar up to 35 
+Comparing Figure~\ref{fig:T2} to Figure~\ref{fig:T1} both RMSE are almost similar up to 35 
 time-steps ahead and after 80 time-steps the gap is still relatively small. 
 \cite{Fotiadis2020} achieve with their U-Net a speed-up of 241x compared with numerical 
 simulations. 
@@ -385,7 +385,7 @@ even with a small mixed dataset which would again increase inference speed.
 the space of solutions) is almost more important than the actual fine-tuning of the models. 
 The architecture shows an underwhelming performance regarding generalization wrt. changes in the
 angle of attack interval. The proposed model is not able to guarantee correctness. This motivates
-further research in network architecture engineering and generalization behaviour (e.g. other shapes).
+further research in network architecture engineering and generalization behavior (e.g. other shapes).
 This research is important because it questions the use of solvers and shows the rapid progress 
 wrt. accuracy of convolutional neural networks in CFD problems.
 
